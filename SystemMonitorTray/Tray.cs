@@ -1,3 +1,5 @@
+using Networking;
+
 namespace SystemMonitorTray;
 
 public partial class Tray : Form
@@ -5,24 +7,42 @@ public partial class Tray : Form
     private readonly NotifyIcon trayIcon;
     private bool sound = true;
 
-    public Tray()
-    {
-        var contextMenuStrip = new ContextMenuStrip();
-        var soundMenuItem = new ToolStripMenuItem("Sound") { Checked = true, CheckOnClick = true };
-        soundMenuItem.Click += OnSound;
+    private INetworkMonitor NetworkMonitor { get; }
 
-        contextMenuStrip.Items.Add(soundMenuItem);
-        contextMenuStrip.Items.Add("Exit", null, OnExit);
+    public Tray(INetworkMonitor networkMonitor)
+    {
+        NetworkMonitor = networkMonitor;
+        NetworkMonitor.OnUpdate += UpdateNetworkData;
 
         trayIcon = new()
         {
-            Text = "SysTrayApp",
-            
-            Icon = Properties.Resources.graph,
-
-            ContextMenuStrip = contextMenuStrip,
+            Text = "System Monitor",
+            Icon = IconHelper.GenerateIcon("N/A"),
+            ContextMenuStrip = GetContextMenu(),
             Visible = true,
         };
+    }
+
+    private ContextMenuStrip GetContextMenu()
+    {
+        var contextMenuStrip = new ContextMenuStrip();
+
+        var detailsMenuItem = new ToolStripMenuItem("Details");
+        var settingsMenuItem = new ToolStripMenuItem("Settings");
+        var soundMenuItem = new ToolStripMenuItem("Sound") { Checked = true, CheckOnClick = true };
+
+        detailsMenuItem.Click += OnDetails;
+        settingsMenuItem.Click += OnSettings;
+        soundMenuItem.Click += OnSound;
+
+        contextMenuStrip.Items.Add(detailsMenuItem);
+        contextMenuStrip.Items.Add("-");
+        contextMenuStrip.Items.Add(settingsMenuItem);
+        contextMenuStrip.Items.Add(soundMenuItem);
+        contextMenuStrip.Items.Add("-");
+        contextMenuStrip.Items.Add("Exit", null, OnExit);
+
+        return contextMenuStrip;
     }
 
     protected override void OnLoad(EventArgs e)
@@ -31,6 +51,38 @@ public partial class Tray : Form
         ShowInTaskbar = false; // Remove from task bar.
 
         base.OnLoad(e);
+    }
+
+    long count = 0;
+
+    public void UpdateNetworkData()
+    {
+        count++;
+
+        trayIcon.Icon = IconHelper.GenerateIcon($"{count}");
+
+        //var current = (long)(NetworkMonitor.GetDetails().ByteReceivedLast1m / 1e6);
+        //
+        //if (current != last)
+        //{
+        //    last = current;
+        //
+        //    trayIcon.Icon = IconHelper.GenerateIcon($"{current}");
+        //
+        //    // TODO: allow show balloon every... 5GB used?
+        //    trayIcon.ShowBalloonTip(10000, "Test Title", $"Used {current} MB", ToolTipIcon.Info);
+        //
+        //}
+    }
+
+    private void OnDetails(object? sender, EventArgs e)
+    {
+        new Details().Show();
+    }
+
+    private void OnSettings(object? sender, EventArgs e)
+    {
+        new Settings().Show();
     }
 
     private void OnSound(object? sender, EventArgs e)

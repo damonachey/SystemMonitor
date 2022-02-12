@@ -25,7 +25,6 @@ while (true)
             case Statuses.Error: 
                 Console.Beep(); 
                 Console.Beep(); 
-                Console.Beep(); 
                 break;
 
             default: 

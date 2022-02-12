@@ -1,3 +1,5 @@
+using Networking;
+
 namespace SystemMonitorTray;
 
 internal static class Program
@@ -11,6 +13,12 @@ internal static class Program
         // To customize application configuration such as set high DPI settings or default font,
         // see https://aka.ms/applicationconfiguration.
         ApplicationConfiguration.Initialize();
-        Application.Run(new Tray());
+
+        var networkMonitor = new NetworkMonitor();
+        networkMonitor.Run();
+        
+        var application = new Tray(networkMonitor);
+
+        Application.Run(application);
     }
 }
