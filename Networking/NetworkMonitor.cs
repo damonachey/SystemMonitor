@@ -26,6 +26,9 @@ public class NetworkMonitor : INetworkMonitor
             }
 
             Logs = Logs
+                // only store one years worth of data
+                .Where(log => log.Time > DateTime.Today.AddDays(-365))
+                // filter duplicate logs in case of restart in the same minute
                 .GroupBy(logs => logs.Time)
                 .Select(group => group.First())
                 .ToList();
