@@ -40,14 +40,14 @@ public partial class Details : Form
         chart = new()
         {
             Name = "History",
-            Size = new Size(this.ClientSize.Width, this.ClientSize.Height * 2 / 3),
+            Size = new Size(this.ClientSize.Width, this.ClientSize.Height - 150),
             TabStop = false,
             BackColor = backColor,
             ForeColor = foreColor,
         };
         chart.Titles.Add("Usage").ForeColor = foreColor;
 
-        Resize += (o, e) => chart.Size = new Size(this.ClientSize.Width, this.ClientSize.Height * 2 / 3);
+        Resize += (o, e) => chart.Size = new Size(this.ClientSize.Width, this.ClientSize.Height - 150);
 
         var legend = new Legend
         {
@@ -155,7 +155,7 @@ public partial class Details : Form
 
     private void InitialzeLayout()
     {
-        MinimumSize = new Size(400, 400);
+        MinimumSize = new Size(400, 300);
 
         var layout = new FlowLayoutPanel { Dock = DockStyle.Fill };
         layout.Controls.Add(chart);
