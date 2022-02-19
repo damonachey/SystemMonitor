@@ -1,5 +1,5 @@
-﻿using System.Collections.Concurrent;
-using System.Net.NetworkInformation;
+﻿using System.Net.NetworkInformation;
+using System.Reflection;
 
 namespace Networking;
 
@@ -8,54 +8,85 @@ public class NetworkMonitor : INetworkMonitor
     public delegate void UpdateHandler();
     public event UpdateHandler? OnUpdate;
 
-    public readonly ConcurrentDictionary<DateTime, Log> logs = new();
+    public IList<Log> Logs { get; } = new List<Log>();
 
-    private readonly TimeSpan refreshPeriod = TimeSpan.FromSeconds(5);
-    private readonly TimeSpan granularity = TimeSpan.FromMinutes(1);
+    private readonly string logFile = @$"{AppContext.BaseDirectory}\NetworkMonitor.log";
+    private readonly TimeSpan pollInterval = TimeSpan.FromSeconds(60);
 
-    public async Task Run()
+    public NetworkMonitor()
     {
-        while (true)
+        if (File.Exists(logFile))
         {
-            var window = DateTime.Now.RoundUp(granularity);
-            var current = GetLog(window);
+            var lines = File.ReadLines(logFile);
 
-            if (logs.TryGetValue(window, out var log))
+            foreach (var line in lines)
             {
-                log.BytesReceived += current.BytesReceived;
-                log.BytesSent += current.BytesSent;
-            }
-            else
-            {
-                logs.TryAdd(window, current);
+                var log = Log.Parse(line);
+
+                Logs.Add(log);
             }
 
-            OnUpdate?.Invoke();
+            Logs = Logs
+                .GroupBy(logs => logs.Time)
+                .Select(group => group.First())
+                .ToList();
 
-            await Task.Delay(refreshPeriod);
+            File.WriteAllLines(logFile, Logs.Select(log => log.ToString()));
         }
     }
 
-    private static Log GetLog(DateTime time)
+    public async Task Run()
     {
-        var log = new Log { Time = time };
+        GetCurrentLog(pollInterval);
+        await DelayNext(pollInterval);
+
+        while (true)
+        {
+            var log = GetCurrentLog(pollInterval);
+
+            Logs.Add(log);
+            File.AppendAllLines(logFile, new[] { log.ToString() });
+
+            _ = Task.Run(() => OnUpdate?.Invoke());
+
+            await DelayNext(pollInterval);
+        }
+    }
+
+    static Log previous = default!;
+
+    private static Log GetCurrentLog(TimeSpan round)
+    {
+        var current = new Log { Time = DateTime.Now.RoundDown(round) };
 
         // Aggregate data from all interfaces
         foreach (var intr in NetworkInterface.GetAllNetworkInterfaces())
         {
             var stats = intr.GetIPStatistics();
 
-            log.BytesReceived += stats.BytesReceived;
-            log.BytesSent += stats.BytesSent;
+            current.BytesReceived += stats.BytesReceived;
+            current.BytesSent += stats.BytesSent;
         }
+
+        if (previous == null) previous = current;
+
+        var log = new Log
+        {
+            Time = current.Time,
+            BytesReceived = current.BytesReceived - previous.BytesReceived,
+            BytesSent = current.BytesSent - previous.BytesSent
+        };
+
+        previous = current;
 
         return log;
     }
 
-    private static TimeSpan Uptime()
+    static async Task DelayNext(TimeSpan interval)
     {
-        var uptime = TimeSpan.FromMilliseconds(Environment.TickCount64);
+        var now = DateTime.Now;
+        var nextMinute = now.RoundUp(interval) - now;
 
-        return uptime;
+        await Task.Delay(nextMinute);
     }
 }

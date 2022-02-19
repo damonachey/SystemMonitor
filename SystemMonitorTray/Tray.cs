@@ -4,15 +4,14 @@ namespace SystemMonitorTray;
 
 public partial class Tray : Form
 {
+    private readonly INetworkMonitor networkMonitor;
     private readonly NotifyIcon trayIcon;
     private bool sound = true;
 
-    private INetworkMonitor NetworkMonitor { get; }
-
     public Tray(INetworkMonitor networkMonitor)
     {
-        NetworkMonitor = networkMonitor;
-        NetworkMonitor.OnUpdate += UpdateNetworkData;
+        this.networkMonitor = networkMonitor;
+        this.networkMonitor.OnUpdate += UpdateNetworkData;
 
         trayIcon = new()
         {
@@ -21,6 +20,9 @@ public partial class Tray : Form
             ContextMenuStrip = GetContextMenu(),
             Visible = true,
         };
+
+        // TODO: remove after debugging
+        new Details(networkMonitor).Show();
     }
 
     private ContextMenuStrip GetContextMenu()
@@ -55,7 +57,7 @@ public partial class Tray : Form
 
     long count = 0;
 
-    public void UpdateNetworkData()
+    private void UpdateNetworkData()
     {
         count++;
 
@@ -77,7 +79,7 @@ public partial class Tray : Form
 
     private void OnDetails(object? sender, EventArgs e)
     {
-        new Details().Show();
+        new Details(networkMonitor).Show();
     }
 
     private void OnSettings(object? sender, EventArgs e)
@@ -101,7 +103,8 @@ public partial class Tray : Form
     protected override void Dispose(bool isDisposing)
     {
         if (isDisposing) trayIcon.Dispose();
+        if (isDisposing) networkMonitor.OnUpdate -= UpdateNetworkData;
 
-        base.Dispose(isDisposing);
+            base.Dispose(isDisposing);
     }
 }
