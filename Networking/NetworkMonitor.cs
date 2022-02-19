@@ -1,5 +1,4 @@
 ﻿using System.Net.NetworkInformation;
-using System.Reflection;
 
 namespace Networking;
 
@@ -10,7 +9,7 @@ public class NetworkMonitor : INetworkMonitor
 
     public IList<Log> Logs { get; } = new List<Log>();
 
-    private readonly string logFile = @$"{AppContext.BaseDirectory}\NetworkMonitor.log";
+    private readonly string logFile = GetLogFilenmame();
     private readonly TimeSpan pollInterval = TimeSpan.FromSeconds(60);
 
     public NetworkMonitor()
@@ -51,6 +50,17 @@ public class NetworkMonitor : INetworkMonitor
 
             await DelayNext(pollInterval);
         }
+    }
+
+    private static string GetLogFilenmame()
+    {
+        var baseDirectory = AppContext.BaseDirectory;
+        var networkId = NetworkInterface
+            .GetAllNetworkInterfaces()
+            .FirstOrDefault()
+            ?.Id;
+
+        return @$"{baseDirectory}\NetworkMonitor.{networkId}.log";
     }
 
     static Log previous = default!;
