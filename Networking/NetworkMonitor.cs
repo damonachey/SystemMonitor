@@ -7,34 +7,14 @@ public class NetworkMonitor : INetworkMonitor
     public delegate void UpdateHandler();
     public event UpdateHandler? OnUpdate;
 
-    public IList<Log> Logs { get; } = new List<Log>();
+    public List<Log> Logs { get; } = new List<Log>();
 
     private readonly string logFile = GetLogFilenmame();
     private readonly TimeSpan pollInterval = TimeSpan.FromSeconds(60);
 
     public NetworkMonitor()
     {
-        if (File.Exists(logFile))
-        {
-            var lines = File.ReadLines(logFile);
-
-            foreach (var line in lines)
-            {
-                var log = Log.Parse(line);
-
-                Logs.Add(log);
-            }
-
-            Logs = Logs
-                // only store one years worth of data
-                .Where(log => log.Time > DateTime.Today.AddDays(-365))
-                // filter duplicate logs in case of restart in the same minute
-                .GroupBy(logs => logs.Time)
-                .Select(group => group.First())
-                .ToList();
-
-            File.WriteAllLines(logFile, Logs.Select(log => log.ToString()));
-        }
+        LoadNetworkMonitorLog();
     }
 
     public async Task Run()
@@ -55,6 +35,34 @@ public class NetworkMonitor : INetworkMonitor
         }
     }
 
+    private void LoadNetworkMonitorLog()
+    {
+        if (File.Exists(logFile))
+        {
+            var logs = new List<Log>();
+            var lines = File.ReadLines(logFile);
+
+            foreach (var line in lines)
+            {
+                var log = Log.Parse(line);
+
+                logs.Add(log);
+            }
+
+            logs = logs
+                // only store one years worth of data
+                .Where(log => log.Time > DateTime.Today.AddDays(-365))
+                // filter duplicate logs in case of restart in the same minute
+                .GroupBy(logs => logs.Time)
+                .Select(group => group.First())
+                .ToList();
+
+            Logs.AddRange(logs);
+
+            File.WriteAllLines(logFile, Logs.Select(log => log.ToString()));
+        }
+    }
+
     private static string GetLogFilenmame()
     {
         var baseDirectory = AppContext.BaseDirectory;
@@ -66,7 +74,7 @@ public class NetworkMonitor : INetworkMonitor
         return @$"{baseDirectory}\NetworkMonitor.{networkId}.log";
     }
 
-    static Log previous = default!;
+    private static Log previous = default!;
 
     private static Log GetCurrentLog(TimeSpan round)
     {
@@ -95,7 +103,7 @@ public class NetworkMonitor : INetworkMonitor
         return log;
     }
 
-    static async Task DelayNext(TimeSpan interval)
+    private static async Task DelayNext(TimeSpan interval)
     {
         var now = DateTime.Now;
         var nextMinute = now.RoundUp(interval) - now;
