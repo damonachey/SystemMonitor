@@ -6,32 +6,34 @@ namespace SystemMonitorTray;
 
 public partial class Details : Form
 {
+    private static readonly Color backColor = Color.FromArgb(30, 30, 30);
+    private static readonly Color foreColor = Color.White;
+    private static readonly Padding padding = new(6);
+
     private INetworkMonitor networkMonitor = default!;
     private Chart chart = default!;
     private ComboBox units = default!;
     private ComboBox range = default!;
-    private Label totalHour = default!;
-    private Label totalDay = default!;
-    private Label total24Hours = default!;
-    private Label totalWeek = default!;
-    private Label total7Days = default!;
-    private Label totalMonth = default!;
-    private Label total30Days = default!;
-
-    private readonly Color backColor = Color.FromArgb(30, 30, 30);
-    private readonly Color foreColor = Color.White;
+    private readonly Label totalHour = new() { AutoSize = true, Padding = padding };
+    private readonly Label totalDay = new() { AutoSize = true, Padding = padding };
+    private readonly Label total24Hours = new() { AutoSize = true, Padding = padding };
+    private readonly Label totalWeek = new() { AutoSize = true, Padding = padding };
+    private readonly Label total7Days = new() { AutoSize = true, Padding = padding };
+    private readonly Label totalMonth = new() { AutoSize = true, Padding = padding };
+    private readonly Label total30Days = new() { AutoSize = true, Padding = padding };
 
     public Details(INetworkMonitor networkMonitor)
     {
-        BackColor = backColor;
-        ForeColor = foreColor;
-
         InitializeComponent();
         InitializeChart();
         InitializeChartConfiguration();
         InitialzeLayout();
         InitializeNetworkMonitor(networkMonitor);
 
+        BackColor = backColor;
+        ForeColor = foreColor;
+        MinimumSize = new Size(400, 300);
+        Resize += (o, e) => chart.Size = new Size(this.ClientSize.Width, this.ClientSize.Height - 150);
         Shown += (o, e) => UpdateNetworkData();
     }
 
@@ -39,15 +41,12 @@ public partial class Details : Form
     {
         chart = new()
         {
-            Name = "History",
-            Size = new Size(this.ClientSize.Width, this.ClientSize.Height - 150),
-            TabStop = false,
             BackColor = backColor,
             ForeColor = foreColor,
+            Size = new Size(this.ClientSize.Width, this.ClientSize.Height - 150),
+            TabStop = false,
         };
         chart.Titles.Add("Usage").ForeColor = foreColor;
-
-        Resize += (o, e) => chart.Size = new Size(this.ClientSize.Width, this.ClientSize.Height - 150);
 
         var legend = new Legend
         {
@@ -59,14 +58,14 @@ public partial class Details : Form
         chart.Legends.Add(legend);
 
         var ca = new ChartArea { BackColor = backColor };
-        ca.AxisX.LineColor = foreColor;
         ca.AxisX.LabelStyle.ForeColor = foreColor;
-//        ca.AxisX.LabelStyle.Format = "HH:mm";
+        //ca.AxisX.LabelStyle.Format = "HH:mm";
+        ca.AxisX.LineColor = foreColor;
         ca.AxisX.MajorGrid.LineColor = foreColor;
         ca.AxisX.MajorTickMark.Enabled = false;
         ca.AxisX.MajorTickMark.LineColor = foreColor;
-        ca.AxisY.LineColor = foreColor;
         ca.AxisY.LabelStyle.ForeColor = foreColor;
+        ca.AxisY.LineColor = foreColor;
         ca.AxisY.MajorGrid.LineColor = foreColor;
         ca.AxisY.MajorTickMark.Enabled = false;
         ca.AxisY.MajorTickMark.LineColor = foreColor;
@@ -143,48 +142,40 @@ public partial class Details : Form
         });
         units.SelectionChangeCommitted += (o, e) => UpdateNetworkData();
         units.SelectedIndex = 2;
-
-        totalHour = new() { AutoSize = true, Padding = new Padding(6) };
-        totalDay = new() { AutoSize = true, Padding = new Padding(6) };
-        total24Hours = new() { AutoSize = true, Padding = new Padding(6) };
-        totalWeek = new() { AutoSize = true, Padding = new Padding(6) };
-        total7Days = new() { AutoSize = true, Padding = new Padding(6) };
-        totalMonth = new() { AutoSize = true, Padding = new Padding(6) };
-        total30Days = new() { AutoSize = true, Padding = new Padding(6) };
     }
 
     private void InitialzeLayout()
     {
-        MinimumSize = new Size(400, 300);
-
         var layout = new FlowLayoutPanel { Dock = DockStyle.Fill };
         layout.Controls.Add(chart);
 
-        layout.Controls.Add(new Label { Text = "Range:", AutoSize = true, Padding = new Padding(6) });
+        var minimumSize = new Size(100, 0);
+
+        layout.Controls.Add(new Label { Text = "Range:", AutoSize = true, Padding = padding });
         layout.Controls.Add(range);
-        layout.Controls.Add(new Label { Text = "Units:", AutoSize = true, Padding = new Padding(6) });
+        layout.Controls.Add(new Label { Text = "Units:", AutoSize = true, Padding = padding });
         layout.Controls.Add(units);
         layout.SetFlowBreak(units, true);
 
-        layout.Controls.Add(new Label { Text = "Total Hour:", AutoSize = true, MinimumSize = new Size(100, 0), Padding = new Padding(6) });
+        layout.Controls.Add(new Label { Text = "Total Hour:", AutoSize = true, MinimumSize = minimumSize, Padding = padding });
         layout.Controls.Add(totalHour);
         layout.SetFlowBreak(totalHour, true);
 
-        layout.Controls.Add(new Label { Text = "Total Day:", AutoSize = true, MinimumSize = new Size(100, 0), Padding = new Padding(6) });
+        layout.Controls.Add(new Label { Text = "Total Day:", AutoSize = true, MinimumSize = minimumSize, Padding = padding });
         layout.Controls.Add(totalDay);
-        layout.Controls.Add(new Label { Text = "Total 24 Hours:", AutoSize = true, MinimumSize = new Size(100, 0), Padding = new Padding(6) });
+        layout.Controls.Add(new Label { Text = "Total 24 Hours:", AutoSize = true, MinimumSize = minimumSize, Padding = padding });
         layout.Controls.Add(total24Hours);
         layout.SetFlowBreak(total24Hours, true);
 
-        layout.Controls.Add(new Label { Text = "Total Week:", AutoSize = true, MinimumSize = new Size(100, 0), Padding = new Padding(6) });
+        layout.Controls.Add(new Label { Text = "Total Week:", AutoSize = true, MinimumSize = minimumSize, Padding = padding });
         layout.Controls.Add(totalWeek);
-        layout.Controls.Add(new Label { Text = "Total 7 Days:", AutoSize = true, MinimumSize = new Size(100, 0), Padding = new Padding(6) });
+        layout.Controls.Add(new Label { Text = "Total 7 Days:", AutoSize = true, MinimumSize = minimumSize, Padding = padding });
         layout.Controls.Add(total7Days);
         layout.SetFlowBreak(total7Days, true);
 
-        layout.Controls.Add(new Label { Text = "Total Month:", AutoSize = true, MinimumSize = new Size(100, 0), Padding = new Padding(6) });
+        layout.Controls.Add(new Label { Text = "Total Month:", AutoSize = true, MinimumSize = minimumSize, Padding = padding });
         layout.Controls.Add(totalMonth);
-        layout.Controls.Add(new Label { Text = "Total 30 Days:", AutoSize = true, MinimumSize = new Size(100, 0), Padding = new Padding(6) });
+        layout.Controls.Add(new Label { Text = "Total 30 Days:", AutoSize = true, MinimumSize = minimumSize, Padding = padding });
         layout.Controls.Add(total30Days);
         layout.SetFlowBreak(total30Days, true);
 
@@ -202,95 +193,72 @@ public partial class Details : Form
         lock (this)
             Invoke(() =>
             {
-                var valueTotalHour = GetLogRange(Range.Hour).Sum(log => log.BytesTotal) / Constants.GB;
-                var valueTotalDay = GetLogRange(Range.Day).Sum(log => log.BytesTotal) / Constants.GB;
-                var valueTotal24Hour = GetLogRange(Range.Hours24).Sum(log => log.BytesTotal) / Constants.GB;
-                var valueTotalWeek = GetLogRange(Range.Week).Sum(log => log.BytesTotal) / Constants.GB;
-                var valueTotal7Days = GetLogRange(Range.Days7).Sum(log => log.BytesTotal) / Constants.GB;
-                var valueTotalMonth = GetLogRange(Range.Month).Sum(log => log.BytesTotal) / Constants.GB;
-                var valueTotal30Days = GetLogRange(Range.Days30).Sum(log => log.BytesTotal) / Constants.GB;
-
-                totalHour.Text = $"{valueTotalHour:0.000} GB";
-                totalDay.Text = $"{valueTotalDay:0.000} GB";
-                total24Hours.Text = $"{valueTotal24Hour:0.000} GB";
-                totalWeek.Text = $"{valueTotalWeek:0.000} GB";
-                total7Days.Text = $"{valueTotal7Days:0.000} GB";
-                totalMonth.Text = $"{valueTotalMonth:0.000} GB";
-                total30Days.Text = $"{valueTotal30Days:0.000} GB";
-
-                chart.Series[0].Points.Clear();
-                chart.Series[1].Points.Clear();
-
-                var unit = (UnitItem)units.SelectedItem;
-                var range = ((RangeItem)this.range.SelectedItem).Value;
-
-                foreach (var log in GetLogRange(range))
-                {
-                    chart.Series["Received"].Points.AddXY(log.Time, log.BytesReceived / unit.Value);
-                    chart.Series["Sent"].Points.AddXY(log.Time, log.BytesTotal / unit.Value);
-                }
+                UpdateTotals();
+                UpdateChart();
             });
     }
 
-    private IEnumerable<Log> GetLogRange(Range range) => range switch
+    private void UpdateTotals()
     {
-        Range.Hour => networkMonitor.Logs.Where(log => log.Time >= DateTime.Now.AddHours(-1)),
-        Range.Day => networkMonitor.Logs.Where(logs => logs.Time >= DateTime.Today)
-            .GroupBy(log => log.Time.Ticks / TimeSpan.FromMinutes(15).Ticks)
+        var unit = new UnitItem(nameof(Constants.GB), Constants.GB);
+
+        var valueTotalHour = GetLogs(Range.Hour).Sum(log => log.BytesTotal) / unit.Value;
+        var valueTotalDay = GetLogs(Range.Day).Sum(log => log.BytesTotal) / unit.Value;
+        var valueTotal24Hour = GetLogs(Range.Hours24).Sum(log => log.BytesTotal) / unit.Value;
+        var valueTotalWeek = GetLogs(Range.Week).Sum(log => log.BytesTotal) / unit.Value;
+        var valueTotal7Days = GetLogs(Range.Days7).Sum(log => log.BytesTotal) / unit.Value;
+        var valueTotalMonth = GetLogs(Range.Month).Sum(log => log.BytesTotal) / unit.Value;
+        var valueTotal30Days = GetLogs(Range.Days30).Sum(log => log.BytesTotal) / unit.Value;
+
+        totalHour.Text = $"{valueTotalHour:0.000} {unit.Name}";
+        totalDay.Text = $"{valueTotalDay:0.000} {unit.Name}";
+        total24Hours.Text = $"{valueTotal24Hour:0.000} {unit.Name}";
+        totalWeek.Text = $"{valueTotalWeek:0.000} {unit.Name}";
+        total7Days.Text = $"{valueTotal7Days:0.000} {unit.Name}";
+        totalMonth.Text = $"{valueTotalMonth:0.000} {unit.Name}";
+        total30Days.Text = $"{valueTotal30Days:0.000} {unit.Name}";
+    }
+
+    private void UpdateChart()
+    {
+        var unit = (UnitItem)units.SelectedItem;
+        var range = ((RangeItem)this.range.SelectedItem).Value;
+
+        chart.Series[0].Points.Clear();
+        chart.Series[1].Points.Clear();
+
+        foreach (var log in GetLogs(range))
+        {
+            chart.Series["Received"].Points.AddXY(log.Time, log.BytesReceived / unit.Value);
+            chart.Series["Sent"].Points.AddXY(log.Time, log.BytesTotal / unit.Value);
+        }
+    }
+
+    private IEnumerable<Log> GetLogs(Range range)
+    {
+        var (earlist, size) = range switch
+        {
+            Range.Hour => (DateTime.Now.AddHours(-1), TimeSpan.FromMinutes(1)),
+            Range.Day => (DateTime.Today, TimeSpan.FromMinutes(15)),
+            Range.Hours24 => (DateTime.Now.AddHours(-24), TimeSpan.FromMinutes(15)),
+            Range.Week => (DateTime.Now.StartOfWeek(), TimeSpan.FromHours(1)),
+            Range.Days7 => (DateTime.Now.AddDays(-7), TimeSpan.FromHours(1)),
+            Range.Month => (DateTime.Now.StartOfMonth(), TimeSpan.FromHours(8)),
+            Range.Days30 => (DateTime.Now.AddDays(-30), TimeSpan.FromHours(8)),
+            Range.All => (DateTime.MinValue, TimeSpan.FromDays(1)),
+            _ => throw new ArgumentOutOfRangeException($"Range: {range} not supported"),
+        };
+
+        var logs = networkMonitor.Logs
+            .Where(log => log.Time >= earlist)
+            .GroupBy(log => log.Time.Ticks / size.Ticks)
             .Select(g => new Log
             {
                 Time = g.First().Time,
                 BytesReceived = g.Sum(log => log.BytesReceived),
                 BytesSent = g.Sum(log => log.BytesSent)
-            }),
-        Range.Hours24 => networkMonitor.Logs.Where(log => log.Time >= DateTime.Now.AddHours(-24))
-            .GroupBy(log => log.Time.Ticks / TimeSpan.FromMinutes(15).Ticks)
-            .Select(g => new Log
-            {
-                Time = g.First().Time,
-                BytesReceived = g.Sum(log => log.BytesReceived),
-                BytesSent = g.Sum(log => log.BytesSent)
-            }),
-        Range.Week => networkMonitor.Logs.Where(log => log.Time >= DateTime.Now.StartOfWeek())
-            .GroupBy(log => log.Time.Ticks / TimeSpan.FromHours(1).Ticks)
-            .Select(g => new Log
-            {
-                Time = g.First().Time,
-                BytesReceived = g.Sum(log => log.BytesReceived),
-                BytesSent = g.Sum(log => log.BytesSent)
-            }),
-        Range.Days7 => networkMonitor.Logs.Where(log => log.Time >= DateTime.Now.AddDays(-7))
-            .GroupBy(log => log.Time.Ticks / TimeSpan.FromHours(1).Ticks)
-            .Select(g => new Log
-            {
-                Time = g.First().Time,
-                BytesReceived = g.Sum(log => log.BytesReceived),
-                BytesSent = g.Sum(log => log.BytesSent)
-            }),
-        Range.Month => networkMonitor.Logs.Where(log => log.Time >= DateTime.Now.StartOfMonth())
-            .GroupBy(log => log.Time.Ticks / TimeSpan.FromHours(8).Ticks)
-            .Select(g => new Log
-            {
-                Time = g.First().Time,
-                BytesReceived = g.Sum(log => log.BytesReceived),
-                BytesSent = g.Sum(log => log.BytesSent)
-            }),
-        Range.Days30 => networkMonitor.Logs.Where(log => log.Time >= DateTime.Now.AddDays(-30))
-            .GroupBy(log => log.Time.Ticks / TimeSpan.FromHours(8).Ticks)
-            .Select(g => new Log
-            {
-                Time = g.First().Time,
-                BytesReceived = g.Sum(log => log.BytesReceived),
-                BytesSent = g.Sum(log => log.BytesSent)
-            }),
-        Range.All => networkMonitor.Logs
-            .GroupBy(log => log.Time.Ticks / TimeSpan.FromDays(1).Ticks)
-            .Select(g => new Log
-            {
-                Time = g.First().Time,
-                BytesReceived = g.Sum(log => log.BytesReceived),
-                BytesSent = g.Sum(log => log.BytesSent)
-            }),
-        _ => throw new ArgumentOutOfRangeException($"Range: {range} not supported"),
-    };
+            });
+
+        return logs;
+    }
 }
