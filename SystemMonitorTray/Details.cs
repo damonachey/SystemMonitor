@@ -200,23 +200,16 @@ public partial class Details : Form
 
     private void UpdateTotals()
     {
-        var unit = new UnitItem(nameof(Constants.GB), Constants.GB);
+        double GetTotal(Range range) => GetLogs(range).Sum(log => log.BytesTotal) / Constants.GB;
+        string GetTotalStr(Range range) => $"{GetTotal(range):0.000} {nameof(Constants.GB)}";
 
-        var valueTotalHour = GetLogs(Range.Hour).Sum(log => log.BytesTotal) / unit.Value;
-        var valueTotalDay = GetLogs(Range.Day).Sum(log => log.BytesTotal) / unit.Value;
-        var valueTotal24Hour = GetLogs(Range.Hours24).Sum(log => log.BytesTotal) / unit.Value;
-        var valueTotalWeek = GetLogs(Range.Week).Sum(log => log.BytesTotal) / unit.Value;
-        var valueTotal7Days = GetLogs(Range.Days7).Sum(log => log.BytesTotal) / unit.Value;
-        var valueTotalMonth = GetLogs(Range.Month).Sum(log => log.BytesTotal) / unit.Value;
-        var valueTotal30Days = GetLogs(Range.Days30).Sum(log => log.BytesTotal) / unit.Value;
-
-        totalHour.Text = $"{valueTotalHour:0.000} {unit.Name}";
-        totalDay.Text = $"{valueTotalDay:0.000} {unit.Name}";
-        total24Hours.Text = $"{valueTotal24Hour:0.000} {unit.Name}";
-        totalWeek.Text = $"{valueTotalWeek:0.000} {unit.Name}";
-        total7Days.Text = $"{valueTotal7Days:0.000} {unit.Name}";
-        totalMonth.Text = $"{valueTotalMonth:0.000} {unit.Name}";
-        total30Days.Text = $"{valueTotal30Days:0.000} {unit.Name}";
+        totalHour.Text = GetTotalStr(Range.Hour);
+        totalDay.Text = GetTotalStr(Range.Day);
+        total24Hours.Text = GetTotalStr(Range.Hours24);
+        totalWeek.Text = GetTotalStr(Range.Week);
+        total7Days.Text = GetTotalStr(Range.Days7);
+        totalMonth.Text = GetTotalStr(Range.Month);
+        total30Days.Text = GetTotalStr(Range.Days30);
     }
 
     private void UpdateChart()
