@@ -61,7 +61,7 @@ public partial class Details : Form
         var ca = new ChartArea { BackColor = backColor };
         ca.AxisX.LineColor = foreColor;
         ca.AxisX.LabelStyle.ForeColor = foreColor;
-        ca.AxisX.LabelStyle.Format = "HH:mm";
+//        ca.AxisX.LabelStyle.Format = "HH:mm";
         ca.AxisX.MajorGrid.LineColor = foreColor;
         ca.AxisX.MajorTickMark.Enabled = false;
         ca.AxisX.MajorTickMark.LineColor = foreColor;
@@ -235,13 +235,62 @@ public partial class Details : Form
     private IEnumerable<Log> GetLogRange(Range range) => range switch
     {
         Range.Hour => networkMonitor.Logs.Where(log => log.Time >= DateTime.Now.AddHours(-1)),
-        Range.Day => networkMonitor.Logs.Where(logs => logs.Time >= DateTime.Today),
-        Range.Hours24 => networkMonitor.Logs.Where(log => log.Time >= DateTime.Now.AddHours(-24)),
-        Range.Week => networkMonitor.Logs.Where(log => log.Time >= DateTime.Now.StartOfWeek()),
-        Range.Days7 => networkMonitor.Logs.Where(log => log.Time >= DateTime.Now.AddDays(-7)),
-        Range.Month => networkMonitor.Logs.Where(log => log.Time >= DateTime.Now.StartOfMonth()),
-        Range.Days30 => networkMonitor.Logs.Where(log => log.Time >= DateTime.Now.AddDays(-30)),
-        Range.All => networkMonitor.Logs,
+        Range.Day => networkMonitor.Logs.Where(logs => logs.Time >= DateTime.Today)
+            .GroupBy(log => log.Time.Ticks / TimeSpan.FromMinutes(15).Ticks)
+            .Select(g => new Log
+            {
+                Time = g.First().Time,
+                BytesReceived = g.Sum(log => log.BytesReceived),
+                BytesSent = g.Sum(log => log.BytesSent)
+            }),
+        Range.Hours24 => networkMonitor.Logs.Where(log => log.Time >= DateTime.Now.AddHours(-24))
+            .GroupBy(log => log.Time.Ticks / TimeSpan.FromMinutes(15).Ticks)
+            .Select(g => new Log
+            {
+                Time = g.First().Time,
+                BytesReceived = g.Sum(log => log.BytesReceived),
+                BytesSent = g.Sum(log => log.BytesSent)
+            }),
+        Range.Week => networkMonitor.Logs.Where(log => log.Time >= DateTime.Now.StartOfWeek())
+            .GroupBy(log => log.Time.Ticks / TimeSpan.FromHours(1).Ticks)
+            .Select(g => new Log
+            {
+                Time = g.First().Time,
+                BytesReceived = g.Sum(log => log.BytesReceived),
+                BytesSent = g.Sum(log => log.BytesSent)
+            }),
+        Range.Days7 => networkMonitor.Logs.Where(log => log.Time >= DateTime.Now.AddDays(-7))
+            .GroupBy(log => log.Time.Ticks / TimeSpan.FromHours(1).Ticks)
+            .Select(g => new Log
+            {
+                Time = g.First().Time,
+                BytesReceived = g.Sum(log => log.BytesReceived),
+                BytesSent = g.Sum(log => log.BytesSent)
+            }),
+        Range.Month => networkMonitor.Logs.Where(log => log.Time >= DateTime.Now.StartOfMonth())
+            .GroupBy(log => log.Time.Ticks / TimeSpan.FromHours(8).Ticks)
+            .Select(g => new Log
+            {
+                Time = g.First().Time,
+                BytesReceived = g.Sum(log => log.BytesReceived),
+                BytesSent = g.Sum(log => log.BytesSent)
+            }),
+        Range.Days30 => networkMonitor.Logs.Where(log => log.Time >= DateTime.Now.AddDays(-30))
+            .GroupBy(log => log.Time.Ticks / TimeSpan.FromHours(8).Ticks)
+            .Select(g => new Log
+            {
+                Time = g.First().Time,
+                BytesReceived = g.Sum(log => log.BytesReceived),
+                BytesSent = g.Sum(log => log.BytesSent)
+            }),
+        Range.All => networkMonitor.Logs
+            .GroupBy(log => log.Time.Ticks / TimeSpan.FromDays(1).Ticks)
+            .Select(g => new Log
+            {
+                Time = g.First().Time,
+                BytesReceived = g.Sum(log => log.BytesReceived),
+                BytesSent = g.Sum(log => log.BytesSent)
+            }),
         _ => throw new ArgumentOutOfRangeException($"Range: {range} not supported"),
     };
 }
