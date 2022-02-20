@@ -59,7 +59,6 @@ public partial class Details : Form
 
         var ca = new ChartArea { BackColor = backColor };
         ca.AxisX.LabelStyle.ForeColor = foreColor;
-        //ca.AxisX.LabelStyle.Format = "HH:mm";
         ca.AxisX.LineColor = foreColor;
         ca.AxisX.MajorGrid.LineColor = foreColor;
         ca.AxisX.MajorTickMark.Enabled = false;
@@ -219,6 +218,9 @@ public partial class Details : Form
 
         chart.Series[0].Points.Clear();
         chart.Series[1].Points.Clear();
+
+        if (range < Range.Week) chart.ChartAreas[0].AxisX.LabelStyle.Format = "HH:mm";
+        else chart.ChartAreas[0].AxisX.LabelStyle.Format = "";
 
         foreach (var log in GetLogs(range))
         {
