@@ -1,6 +1,6 @@
 ﻿namespace SystemMonitorTray;
 
-partial class Details
+partial class DetailsForm
 {
     /// <summary>
     /// Required designer variable.

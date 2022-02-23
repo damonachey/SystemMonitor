@@ -8,42 +8,38 @@ namespace SystemMonitorTray;
 
 public partial class Tray : Form
 {
-    private readonly string appKey = @"Software\Achey\SystemMonitor";
-    private readonly string runKey = @"Software\Microsoft\Windows\CurrentVersion\Run";
-    private readonly string runName = @"Achey\SystemMonitor";
+    private readonly string startWithWindowsKey = @"Software\Microsoft\Windows\CurrentVersion\Run";
+    private readonly string startWithWindowsName = @"Achey\SystemMonitor";
 
     private readonly INetworkMonitor networkMonitor;
     private readonly NotifyIcon trayIcon;
-    
-    private bool sound = true;
-    private bool startWithWindows = false;
 
     public Tray(INetworkMonitor networkMonitor)
     {
+        Properties.Settings.Default.PropertyChanged += (o, e) => Properties.Settings.Default.Save();
+
         this.networkMonitor = networkMonitor;
         this.networkMonitor.OnUpdate += UpdateNetworkData;
 
         trayIcon = new()
         {
             Text = "System Monitor",
-            Icon = IconHelper.GenerateIcon("N/A"),
+            Icon = IconHelper.GenerateIcon(0),
             ContextMenuStrip = GetContextMenu(),
             Visible = true,
         };
+        trayIcon.DoubleClick += (o, e) => new DetailsForm(networkMonitor).Show();
 
         InitializeOptions();
 
         // TODO: remove after debugging
-        new Details(networkMonitor).Show();
+        new DetailsForm(networkMonitor).Show();
     }
 
     private void InitializeOptions()
     {
-        var key = Registry.CurrentUser.CreateSubKey(appKey);
-        sound = bool.Parse((string)key.GetValue("Sound", true.ToString())!);
-        
-        key = Registry.CurrentUser.CreateSubKey(runKey);
-        startWithWindows = key.GetValue(runName) != null;
+        var key = Registry.CurrentUser.CreateSubKey(startWithWindowsKey);
+        Properties.Settings.Default.startWithWindows = key.GetValue(startWithWindowsName) != null;
 
         foreach (object item in trayIcon.ContextMenuStrip.Items)
         {
@@ -51,12 +47,12 @@ public partial class Tray : Form
             {
                 if (menuItem.Text == "Start With Windows")
                 {
-                    menuItem.Checked = startWithWindows;
+                    menuItem.Checked = Properties.Settings.Default.startWithWindows;
                 }
 
                 if (menuItem.Text == "Sound")
                 {
-                    menuItem.Checked = sound;
+                    menuItem.Checked = Properties.Settings.Default.sound;
                 }
             }
         }
@@ -101,7 +97,8 @@ public partial class Tray : Form
     {
         count++;
 
-        trayIcon.Icon = IconHelper.GenerateIcon($"{count}");
+        trayIcon.Icon.Dispose();
+        trayIcon.Icon = IconHelper.GenerateIcon(35);
 
         //var current = (long)(NetworkMonitor.GetDetails().ByteReceivedLast1m / 1e6);
         //
@@ -119,25 +116,21 @@ public partial class Tray : Form
 
     private void OnDetails(object? sender, EventArgs e)
     {
-        new Details(networkMonitor).Show();
+        new DetailsForm(networkMonitor).Show();
     }
 
     private void OnSettings(object? sender, EventArgs e)
     {
-        new Settings().Show();
+        new SettingsForm().Show();
     }
 
     private void OnSound(object? sender, EventArgs e)
     {
-        if (sender is ToolStripMenuItem item)
-        {
-            sound = item?.Checked ?? false;
-        }
+        var item = (ToolStripMenuItem)sender!;
 
-        var key = Registry.CurrentUser.CreateSubKey(appKey);
-        key.SetValue("Sound", sound.ToString());
+        Properties.Settings.Default.sound = item.Checked;
 
-        if (sound)
+        if (Properties.Settings.Default.sound)
         {
             Console.Beep();
         }
@@ -145,19 +138,18 @@ public partial class Tray : Form
 
     private void OnStartWithWindows(object? sender, EventArgs e)
     {
-        if (sender is ToolStripMenuItem item)
-        {
-            startWithWindows = item?.Checked ?? false;
-        }
+        var item = (ToolStripMenuItem)sender!;
 
-        var key = Registry.CurrentUser.CreateSubKey(runKey);
-        if (startWithWindows)
+        Properties.Settings.Default.startWithWindows = item.Checked;
+
+        var key = Registry.CurrentUser.CreateSubKey(startWithWindowsKey);
+        if (Properties.Settings.Default.startWithWindows)
         {
-            key.SetValue(runName, Assembly.GetEntryAssembly()?.Location!);
+            key.SetValue(startWithWindowsName, Assembly.GetEntryAssembly()?.Location!);
         }
         else
         {
-            key.DeleteValue(runName);
+            key.DeleteValue(startWithWindowsName);
         }
     }
 
@@ -171,6 +163,6 @@ public partial class Tray : Form
         if (isDisposing) trayIcon.Dispose();
         if (isDisposing) networkMonitor.OnUpdate -= UpdateNetworkData;
 
-            base.Dispose(isDisposing);
+        base.Dispose(isDisposing);
     }
 }

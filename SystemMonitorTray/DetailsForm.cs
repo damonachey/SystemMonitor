@@ -4,11 +4,13 @@ using System.Windows.Forms.DataVisualization.Charting;
 
 namespace SystemMonitorTray;
 
-public partial class Details : Form
+public partial class DetailsForm : Form
 {
     private static readonly Color backColor = Color.FromArgb(30, 30, 30);
     private static readonly Color foreColor = Color.White;
+    private static readonly Size minimumSize = new(400, 300);
     private static readonly Padding padding = new(6);
+    private static readonly SeriesChartType chartType = SeriesChartType.SplineArea;
 
     private INetworkMonitor networkMonitor = default!;
     private Chart chart = default!;
@@ -22,7 +24,7 @@ public partial class Details : Form
     private readonly Label totalMonth = new() { AutoSize = true, Padding = padding };
     private readonly Label total30Days = new() { AutoSize = true, Padding = padding };
 
-    public Details(INetworkMonitor networkMonitor)
+    public DetailsForm(INetworkMonitor networkMonitor)
     {
         InitializeComponent();
         InitializeChart();
@@ -32,9 +34,19 @@ public partial class Details : Form
 
         BackColor = backColor;
         ForeColor = foreColor;
-        MinimumSize = new Size(400, 300);
+        FormClosing += (o, e) => OnFormClosing();
+        Location = Properties.Settings.Default.detailsFormLocation;
+        MinimumSize = minimumSize;
         Resize += (o, e) => chart.Size = new Size(this.ClientSize.Width, this.ClientSize.Height - 150);
         Shown += (o, e) => UpdateNetworkData();
+        Size = Properties.Settings.Default.detailsFormSize;
+        StartPosition = FormStartPosition.Manual;
+    }
+
+    private void OnFormClosing()
+    {
+        Properties.Settings.Default.detailsFormLocation = Location;
+        Properties.Settings.Default.detailsFormSize = Size;
     }
 
     private void InitializeChart()
@@ -44,7 +56,7 @@ public partial class Details : Form
             BackColor = backColor,
             ForeColor = foreColor,
             Size = new Size(this.ClientSize.Width, this.ClientSize.Height - 150),
-            TabStop = false,
+            //TabStop = false,  // TODO:
         };
         chart.Titles.Add("Usage").ForeColor = foreColor;
 
@@ -72,8 +84,9 @@ public partial class Details : Form
 
         var seriesSent = new Series
         {
-            ChartType = SeriesChartType.SplineArea,
+            ChartType = chartType,
             Color = Color.FromArgb(252, 180, 65),
+            CustomProperties = "DrawSideBySide=False",
             IsVisibleInLegend = true,
             LabelForeColor = foreColor,
             Name = "Sent",
@@ -83,14 +96,31 @@ public partial class Details : Form
 
         var seriesReceived = new Series
         {
-            ChartType = SeriesChartType.SplineArea,
+            ChartType = chartType,
             Color = Color.FromArgb(65, 140, 240),
+            CustomProperties = "DrawSideBySide=False",
             IsVisibleInLegend = true,
             LabelForeColor = foreColor,
             Name = "Received",
             XValueType = ChartValueType.DateTime,
         };
         chart.Series.Add(seriesReceived);
+
+        // TODO: move to settings page
+        chart.KeyDown += (o, e) =>
+        {
+            if (e.KeyCode == Keys.C)
+            {
+                chart.Series[0].ChartType = SeriesChartType.Column;
+                chart.Series[1].ChartType = SeriesChartType.Column;
+            }
+
+            if (e.KeyCode == Keys.S)
+            {
+                chart.Series[0].ChartType = SeriesChartType.SplineArea;
+                chart.Series[1].ChartType = SeriesChartType.SplineArea;
+            }
+        };
     }
 
     private record class RangeItem(string Name, Range Value);
