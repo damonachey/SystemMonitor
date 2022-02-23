@@ -274,10 +274,10 @@ public partial class DetailsForm : Form
         var (earlist, size) = range switch
         {
             Range.Hour => (DateTime.Now.AddHours(-1), TimeSpan.FromMinutes(1)),
-            Range.Day => (DateTime.Today, TimeSpan.FromMinutes(15)),
-            Range.Hours24 => (DateTime.Now.AddHours(-24), TimeSpan.FromMinutes(15)),
-            Range.Week => (DateTime.Now.StartOfWeek(), TimeSpan.FromHours(1)),
-            Range.Days7 => (DateTime.Now.AddDays(-7), TimeSpan.FromHours(1)),
+            Range.Day => (DateTime.Today, TimeSpan.FromMinutes(30)),
+            Range.Hours24 => (DateTime.Now.AddHours(-24), TimeSpan.FromMinutes(30)),
+            Range.Week => (DateTime.Now.StartOfWeek(), TimeSpan.FromHours(4)),
+            Range.Days7 => (DateTime.Now.AddDays(-7), TimeSpan.FromHours(4)),
             Range.Month => (DateTime.Now.StartOfMonth(), TimeSpan.FromHours(8)),
             Range.Days30 => (DateTime.Now.AddDays(-30), TimeSpan.FromHours(8)),
             Range.All => (DateTime.MinValue, TimeSpan.FromDays(1)),
@@ -292,7 +292,8 @@ public partial class DetailsForm : Form
                 Time = g.First().Time,
                 BytesReceived = g.Sum(log => log.BytesReceived),
                 BytesSent = g.Sum(log => log.BytesSent)
-            });
+            })
+            .Skip(1);
 
         return logs;
     }
