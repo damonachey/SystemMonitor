@@ -280,7 +280,7 @@ public partial class DetailsForm : Form
             Range.Days7 => (DateTime.Now.AddDays(-7), TimeSpan.FromHours(4)),
             Range.Month => (DateTime.Now.StartOfMonth(), TimeSpan.FromHours(8)),
             Range.Days30 => (DateTime.Now.AddDays(-30), TimeSpan.FromHours(8)),
-            Range.All => (DateTime.MinValue, TimeSpan.FromDays(1)),
+            Range.All => (DateTime.MinValue, TimeSpan.FromDays(7)),
             _ => throw new ArgumentOutOfRangeException($"Range: {range} not supported"),
         };
 
