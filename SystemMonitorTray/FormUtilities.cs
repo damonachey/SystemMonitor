@@ -2,6 +2,7 @@
 
 internal class FormUtilities
 {
+    // https://stackoverflow.com/a/29596412/200807
     public static bool IsOnScreen(Point RecLocation, Size RecSize, double MinPercentOnScreen = 0.2)
     {
         var PixelsVisible = 0;
