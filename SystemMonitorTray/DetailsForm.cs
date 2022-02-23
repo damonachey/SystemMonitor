@@ -35,22 +35,38 @@ public partial class DetailsForm : Form
         InitialzeLayout();
         InitializeNetworkMonitor(networkMonitor);
 
-        FormClosing += (o, e) => OnFormClosing();
-        Load += (o, e) => OnLoad();
-        Resize += (o, e) => chart.Size = new Size(this.ClientSize.Width, this.ClientSize.Height - 150);
+        FormClosing += OnFormClosing;
+        Load += OnLoad;
+        SizeChanged += OnSizeChanged;
         Shown += (o, e) => UpdateNetworkData();
     }
 
-    private void OnFormClosing()
+    private void OnFormClosing(object? sender, EventArgs e)
     {
-        Properties.Settings.Default.detailsFormLocation = Location;
-        Properties.Settings.Default.detailsFormSize = Size;
+        if (Size.Width >= minimumSize.Width && Size.Height >= minimumSize.Height)
+        {
+            Properties.Settings.Default.detailsFormLocation = Location;
+            Properties.Settings.Default.detailsFormSize = Size;
+        }
     }
 
-    private void OnLoad()
+    private void OnSizeChanged(object? sender, EventArgs e)
+    {
+        if (WindowState != FormWindowState.Minimized)
+        {
+            chart.Size = new Size(ClientSize.Width, this.ClientSize.Height - 150);
+        }
+    }
+
+    private void OnLoad(object? sender, EventArgs e)
     {
         Location = Properties.Settings.Default.detailsFormLocation;
         Size = Properties.Settings.Default.detailsFormSize;
+
+        if (!FormUtilities.IsOnScreen(Location, Size))
+        {
+            SetDesktopLocation(0, 0);
+        }
     }
 
     private void InitializeChart()
