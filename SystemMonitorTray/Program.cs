@@ -1,5 +1,7 @@
 using Networking;
 
+using System.Configuration;
+
 namespace SystemMonitorTray;
 
 internal static class Program
@@ -14,7 +16,9 @@ internal static class Program
         // see https://aka.ms/applicationconfiguration.
         ApplicationConfiguration.Initialize();
 
-        var networkMonitor = new NetworkMonitor();
+        var logPath = Path.GetDirectoryName(ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoamingAndLocal).FilePath);
+
+        var networkMonitor = new NetworkMonitor(logPath);
         _ = networkMonitor.Start();
         
         var application = new Tray(networkMonitor);

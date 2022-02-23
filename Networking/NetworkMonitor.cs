@@ -9,8 +9,13 @@ public class NetworkMonitor : INetworkMonitor
 
     public List<Log> Logs { get; internal set; } = new();
 
-    private readonly string logFile = GetLogFilenmame();
+    private readonly string logFile = default!;
     private readonly TimeSpan pollInterval = TimeSpan.FromSeconds(60);
+
+    public NetworkMonitor(string logPath)
+    {
+        logFile = GetLogFilename(logPath);
+    }
 
     public async Task Start()
     {
@@ -30,15 +35,14 @@ public class NetworkMonitor : INetworkMonitor
         }
     }
 
-    private static string GetLogFilenmame()
+    private static string GetLogFilename(string logPath)
     {
-        var baseDirectory = AppContext.BaseDirectory;
         var networkId = NetworkInterface
             .GetAllNetworkInterfaces()
             .FirstOrDefault()
             ?.Id;
 
-        return @$"{baseDirectory}\NetworkMonitor.{networkId}.log";
+        return @$"{logPath}\NetworkMonitor.{networkId}.log";
     }
 
     private void InitializeLogs()
