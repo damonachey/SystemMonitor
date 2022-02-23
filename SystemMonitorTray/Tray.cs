@@ -16,8 +16,6 @@ public partial class Tray : Form
 
     public Tray(INetworkMonitor networkMonitor)
     {
-        Properties.Settings.Default.PropertyChanged += (o, e) => Properties.Settings.Default.Save();
-
         this.networkMonitor = networkMonitor;
         this.networkMonitor.OnUpdate += UpdateNetworkData;
 
@@ -29,6 +27,7 @@ public partial class Tray : Form
             Visible = true,
         };
         trayIcon.DoubleClick += (o, e) => new DetailsForm(networkMonitor).Show();
+        Properties.Settings.Default.PropertyChanged += (o, e) => Properties.Settings.Default.Save();
 
         InitializeOptions();
 
@@ -39,7 +38,7 @@ public partial class Tray : Form
     private void InitializeOptions()
     {
         var key = Registry.CurrentUser.CreateSubKey(startWithWindowsKey);
-        Properties.Settings.Default.startWithWindows = key.GetValue(startWithWindowsName) != null;
+        Properties.Settings.Default.applicationStartWithWindows = key.GetValue(startWithWindowsName) != null;
 
         foreach (object item in trayIcon.ContextMenuStrip.Items)
         {
@@ -47,12 +46,12 @@ public partial class Tray : Form
             {
                 if (menuItem.Text == "Start With Windows")
                 {
-                    menuItem.Checked = Properties.Settings.Default.startWithWindows;
+                    menuItem.Checked = Properties.Settings.Default.applicationStartWithWindows;
                 }
 
                 if (menuItem.Text == "Sound")
                 {
-                    menuItem.Checked = Properties.Settings.Default.sound;
+                    menuItem.Checked = Properties.Settings.Default.applicationSound;
                 }
             }
         }
@@ -128,9 +127,9 @@ public partial class Tray : Form
     {
         var item = (ToolStripMenuItem)sender!;
 
-        Properties.Settings.Default.sound = item.Checked;
+        Properties.Settings.Default.applicationSound = item.Checked;
 
-        if (Properties.Settings.Default.sound)
+        if (Properties.Settings.Default.applicationSound)
         {
             Console.Beep();
         }
@@ -140,10 +139,10 @@ public partial class Tray : Form
     {
         var item = (ToolStripMenuItem)sender!;
 
-        Properties.Settings.Default.startWithWindows = item.Checked;
+        Properties.Settings.Default.applicationStartWithWindows = item.Checked;
 
         var key = Registry.CurrentUser.CreateSubKey(startWithWindowsKey);
-        if (Properties.Settings.Default.startWithWindows)
+        if (Properties.Settings.Default.applicationStartWithWindows)
         {
             key.SetValue(startWithWindowsName, Assembly.GetEntryAssembly()?.Location!);
         }

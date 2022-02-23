@@ -6,8 +6,6 @@ namespace SystemMonitorTray;
 
 public partial class DetailsForm : Form
 {
-    private static readonly Color backColor = Color.FromArgb(30, 30, 30);
-    private static readonly Color foreColor = Color.White;
     private static readonly Size minimumSize = new(400, 300);
     private static readonly Padding padding = new(6);
     private static readonly SeriesChartType chartType = SeriesChartType.SplineArea;
@@ -26,21 +24,22 @@ public partial class DetailsForm : Form
 
     public DetailsForm(INetworkMonitor networkMonitor)
     {
+        BackColor = Properties.Settings.Default.applicationBackgroundColor;
+        ForeColor = Properties.Settings.Default.applicationForegroundColor;
+        Location = Properties.Settings.Default.detailsFormLocation;
+        MinimumSize = minimumSize;
+        Size = Properties.Settings.Default.detailsFormSize;
+        StartPosition = FormStartPosition.Manual;
+
         InitializeComponent();
         InitializeChart();
         InitializeChartConfiguration();
         InitialzeLayout();
         InitializeNetworkMonitor(networkMonitor);
 
-        BackColor = backColor;
-        ForeColor = foreColor;
         FormClosing += (o, e) => OnFormClosing();
-        Location = Properties.Settings.Default.detailsFormLocation;
-        MinimumSize = minimumSize;
         Resize += (o, e) => chart.Size = new Size(this.ClientSize.Width, this.ClientSize.Height - 150);
         Shown += (o, e) => UpdateNetworkData();
-        Size = Properties.Settings.Default.detailsFormSize;
-        StartPosition = FormStartPosition.Manual;
     }
 
     private void OnFormClosing()
@@ -53,42 +52,42 @@ public partial class DetailsForm : Form
     {
         chart = new()
         {
-            BackColor = backColor,
-            ForeColor = foreColor,
+            BackColor = BackColor,
+            ForeColor = ForeColor,
             Size = new Size(this.ClientSize.Width, this.ClientSize.Height - 150),
             //TabStop = false,  // TODO:
         };
-        chart.Titles.Add("Usage").ForeColor = foreColor;
+        chart.Titles.Add("Usage").ForeColor = ForeColor;
 
         var legend = new Legend
         {
             Docking = Docking.Bottom,
-            BackColor = backColor,
-            ForeColor = foreColor,
+            BackColor = BackColor,
+            ForeColor = ForeColor,
             LegendItemOrder = LegendItemOrder.ReversedSeriesOrder,
         };
         chart.Legends.Add(legend);
 
-        var ca = new ChartArea { BackColor = backColor };
-        ca.AxisX.LabelStyle.ForeColor = foreColor;
-        ca.AxisX.LineColor = foreColor;
-        ca.AxisX.MajorGrid.LineColor = foreColor;
+        var ca = new ChartArea { BackColor = BackColor };
+        ca.AxisX.LabelStyle.ForeColor = ForeColor;
+        ca.AxisX.LineColor = ForeColor;
+        ca.AxisX.MajorGrid.LineColor = ForeColor;
         ca.AxisX.MajorTickMark.Enabled = false;
-        ca.AxisX.MajorTickMark.LineColor = foreColor;
-        ca.AxisY.LabelStyle.ForeColor = foreColor;
-        ca.AxisY.LineColor = foreColor;
-        ca.AxisY.MajorGrid.LineColor = foreColor;
+        ca.AxisX.MajorTickMark.LineColor = ForeColor;
+        ca.AxisY.LabelStyle.ForeColor = ForeColor;
+        ca.AxisY.LineColor = ForeColor;
+        ca.AxisY.MajorGrid.LineColor = ForeColor;
         ca.AxisY.MajorTickMark.Enabled = false;
-        ca.AxisY.MajorTickMark.LineColor = foreColor;
+        ca.AxisY.MajorTickMark.LineColor = ForeColor;
         chart.ChartAreas.Add(ca);
 
         var seriesSent = new Series
         {
             ChartType = chartType,
-            Color = Color.FromArgb(252, 180, 65),
+            Color = Properties.Settings.Default.detailsFormSentChartColor,
             CustomProperties = "DrawSideBySide=False",
             IsVisibleInLegend = true,
-            LabelForeColor = foreColor,
+            LabelForeColor = ForeColor,
             Name = "Sent",
             XValueType = ChartValueType.DateTime,
         };
@@ -97,10 +96,10 @@ public partial class DetailsForm : Form
         var seriesReceived = new Series
         {
             ChartType = chartType,
-            Color = Color.FromArgb(65, 140, 240),
+            Color = Properties.Settings.Default.detailsFormReceivedChartColor,
             CustomProperties = "DrawSideBySide=False",
             IsVisibleInLegend = true,
-            LabelForeColor = foreColor,
+            LabelForeColor = ForeColor,
             Name = "Received",
             XValueType = ChartValueType.DateTime,
         };
@@ -178,33 +177,39 @@ public partial class DetailsForm : Form
         var layout = new FlowLayoutPanel { Dock = DockStyle.Fill };
         layout.Controls.Add(chart);
 
-        var minimumSize = new Size(100, 0);
-
         layout.Controls.Add(new Label { Text = "Range:", AutoSize = true, Padding = padding });
         layout.Controls.Add(range);
         layout.Controls.Add(new Label { Text = "Units:", AutoSize = true, Padding = padding });
         layout.Controls.Add(units);
         layout.SetFlowBreak(units, true);
 
-        layout.Controls.Add(new Label { Text = "Total Hour:", AutoSize = true, MinimumSize = minimumSize, Padding = padding });
+        static Label GetLabel(string text) => new()
+        {
+            Text = text,
+            AutoSize = true,
+            MinimumSize = new Size(100, 0),
+            Padding = padding
+        };
+
+        layout.Controls.Add(GetLabel("Total Hour:"));
         layout.Controls.Add(totalHour);
         layout.SetFlowBreak(totalHour, true);
 
-        layout.Controls.Add(new Label { Text = "Total Day:", AutoSize = true, MinimumSize = minimumSize, Padding = padding });
+        layout.Controls.Add(GetLabel("Total Day:"));
         layout.Controls.Add(totalDay);
-        layout.Controls.Add(new Label { Text = "Total 24 Hours:", AutoSize = true, MinimumSize = minimumSize, Padding = padding });
+        layout.Controls.Add(GetLabel("Total 24 Hours:"));
         layout.Controls.Add(total24Hours);
         layout.SetFlowBreak(total24Hours, true);
 
-        layout.Controls.Add(new Label { Text = "Total Week:", AutoSize = true, MinimumSize = minimumSize, Padding = padding });
+        layout.Controls.Add(GetLabel("Total Week:"));
         layout.Controls.Add(totalWeek);
-        layout.Controls.Add(new Label { Text = "Total 7 Days:", AutoSize = true, MinimumSize = minimumSize, Padding = padding });
+        layout.Controls.Add(GetLabel("Total 7 Days:"));
         layout.Controls.Add(total7Days);
         layout.SetFlowBreak(total7Days, true);
 
-        layout.Controls.Add(new Label { Text = "Total Month:", AutoSize = true, MinimumSize = minimumSize, Padding = padding });
+        layout.Controls.Add(GetLabel("Total Month:"));
         layout.Controls.Add(totalMonth);
-        layout.Controls.Add(new Label { Text = "Total 30 Days:", AutoSize = true, MinimumSize = minimumSize, Padding = padding });
+        layout.Controls.Add(GetLabel("Total 30 Days:"));
         layout.Controls.Add(total30Days);
         layout.SetFlowBreak(total30Days, true);
 

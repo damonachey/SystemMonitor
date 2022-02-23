@@ -25,25 +25,49 @@ namespace SystemMonitorTray.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
-        public bool sound {
+        [global::System.Configuration.DefaultSettingValueAttribute("30, 30, 30")]
+        public global::System.Drawing.Color applicationBackgroundColor {
             get {
-                return ((bool)(this["sound"]));
+                return ((global::System.Drawing.Color)(this["applicationBackgroundColor"]));
             }
             set {
-                this["sound"] = value;
+                this["applicationBackgroundColor"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("White")]
+        public global::System.Drawing.Color applicationForegroundColor {
+            get {
+                return ((global::System.Drawing.Color)(this["applicationForegroundColor"]));
+            }
+            set {
+                this["applicationForegroundColor"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool applicationSound {
+            get {
+                return ((bool)(this["applicationSound"]));
+            }
+            set {
+                this["applicationSound"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool startWithWindows {
+        public bool applicationStartWithWindows {
             get {
-                return ((bool)(this["startWithWindows"]));
+                return ((bool)(this["applicationStartWithWindows"]));
             }
             set {
-                this["startWithWindows"] = value;
+                this["applicationStartWithWindows"] = value;
             }
         }
         
@@ -68,6 +92,59 @@ namespace SystemMonitorTray.Properties {
             }
             set {
                 this["detailsFormSize"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("65, 140, 240")]
+        public global::System.Drawing.Color detailsFormReceivedChartColor
+        {
+            get
+            {
+                return ((global::System.Drawing.Color)(this["detailsFormReceivedChartColor"]));
+            }
+            set
+            {
+                this["detailsFormReceivedChartColor"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("252, 180, 65")]
+        public global::System.Drawing.Color detailsFormSentChartColor
+        {
+            get
+            {
+                return ((global::System.Drawing.Color)(this["detailsFormSentChartColor"]));
+            }
+            set
+            {
+                this["detailsFormSentChartColor"] = value;
+            }
+        }
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("200, 200")]
+        public global::System.Drawing.Point settingsFormLocation {
+            get {
+                return ((global::System.Drawing.Point)(this["settingsFormLocation"]));
+            }
+            set {
+                this["settingsFormLocation"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("800, 600")]
+        public global::System.Drawing.Size settingsFormSize {
+            get {
+                return ((global::System.Drawing.Size)(this["settingsFormSize"]));
+            }
+            set {
+                this["settingsFormSize"] = value;
             }
         }
     }
