@@ -26,9 +26,7 @@ public partial class DetailsForm : Form
     {
         BackColor = Properties.Settings.Default.applicationBackgroundColor;
         ForeColor = Properties.Settings.Default.applicationForegroundColor;
-        Location = Properties.Settings.Default.detailsFormLocation;
         MinimumSize = minimumSize;
-        Size = Properties.Settings.Default.detailsFormSize;
         StartPosition = FormStartPosition.Manual;
 
         InitializeComponent();
@@ -38,6 +36,7 @@ public partial class DetailsForm : Form
         InitializeNetworkMonitor(networkMonitor);
 
         FormClosing += (o, e) => OnFormClosing();
+        Load += (o, e) => OnLoad();
         Resize += (o, e) => chart.Size = new Size(this.ClientSize.Width, this.ClientSize.Height - 150);
         Shown += (o, e) => UpdateNetworkData();
     }
@@ -46,6 +45,12 @@ public partial class DetailsForm : Form
     {
         Properties.Settings.Default.detailsFormLocation = Location;
         Properties.Settings.Default.detailsFormSize = Size;
+    }
+
+    private void OnLoad()
+    {
+        Location = Properties.Settings.Default.detailsFormLocation;
+        Size = Properties.Settings.Default.detailsFormSize;
     }
 
     private void InitializeChart()
