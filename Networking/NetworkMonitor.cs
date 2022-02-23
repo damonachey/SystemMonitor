@@ -19,19 +19,26 @@ public class NetworkMonitor : INetworkMonitor
 
     public async Task Start()
     {
-        InitializeLogs();
-        await DelayNext(pollInterval);
-
-        while (true)
+        try
         {
-            var log = GetCurrentLog(pollInterval);
-
-            Logs.Add(log);
-            File.AppendAllLines(logFile, new[] { log.ToString() });
-
-            _ = Task.Run(() => OnUpdate?.Invoke());
-
+            InitializeLogs();
             await DelayNext(pollInterval);
+
+            while (true)
+            {
+                var log = GetCurrentLog(pollInterval);
+
+                Logs.Add(log);
+                File.AppendAllLines(logFile, new[] { log.ToString() });
+
+                _ = Task.Run(() => OnUpdate?.Invoke());
+
+                await DelayNext(pollInterval);
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine(ex.ToString());
         }
     }
 
@@ -71,6 +78,9 @@ public class NetworkMonitor : INetworkMonitor
 
         var current = GetCurrentLog(pollInterval);
         var intervals = (int)((current.Time - last.Time) / pollInterval);
+
+        if (intervals == 0) return;
+
         var deltaBytesReceived = (current.CumulativeBytesReceived - last.CumulativeBytesReceived) / intervals;
         var deltaBytesSent = (current.CumulativeBytesSent - last.CumulativeBytesSent) / intervals;
 
