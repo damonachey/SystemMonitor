@@ -8,5 +8,5 @@ public interface INetworkMonitor
 
     List<Log> Logs { get; }
 
-    Task Run();
+    Task Start();
 }

@@ -3,12 +3,14 @@ using System.Text.Json.Serialization;
 
 namespace Networking;
 
-[System.Diagnostics.DebuggerDisplay("{Time}: Received({BytesReceived}), Sent({BytesSent})")]
+[System.Diagnostics.DebuggerDisplay("{Time}: BytesReceived({BytesReceived}), BytesSent({BytesSent}), CumulativeBytesReceived({CumulativeBytesReceived}), CumulativeBytesSent({CumulativeBytesSent})")]
 public class Log
 {
     public DateTime Time { get; set; }
     public long BytesReceived { get; set; }
     public long BytesSent { get; set; }
+    public long CumulativeBytesReceived { get; set; }
+    public long CumulativeBytesSent { get; set; }
 
     [JsonIgnore]
     public long BytesTotal => BytesReceived + BytesSent;

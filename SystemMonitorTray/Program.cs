@@ -15,7 +15,7 @@ internal static class Program
         ApplicationConfiguration.Initialize();
 
         var networkMonitor = new NetworkMonitor();
-        _ = networkMonitor.Run();
+        _ = networkMonitor.Start();
         
         var application = new Tray(networkMonitor);
 

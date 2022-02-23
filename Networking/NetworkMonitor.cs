@@ -7,19 +7,14 @@ public class NetworkMonitor : INetworkMonitor
     public delegate void UpdateHandler();
     public event UpdateHandler? OnUpdate;
 
-    public List<Log> Logs { get; } = new List<Log>();
+    public List<Log> Logs { get; internal set; } = new();
 
     private readonly string logFile = GetLogFilenmame();
     private readonly TimeSpan pollInterval = TimeSpan.FromSeconds(60);
 
-    public NetworkMonitor()
+    public async Task Start()
     {
-        LoadNetworkMonitorLog();
-    }
-
-    public async Task Run()
-    {
-        GetCurrentLog(pollInterval);
+        InitializeLogs();
         await DelayNext(pollInterval);
 
         while (true)
@@ -35,34 +30,6 @@ public class NetworkMonitor : INetworkMonitor
         }
     }
 
-    private void LoadNetworkMonitorLog()
-    {
-        if (File.Exists(logFile))
-        {
-            var logs = new List<Log>();
-            var lines = File.ReadLines(logFile);
-
-            foreach (var line in lines)
-            {
-                var log = Log.Parse(line);
-
-                logs.Add(log);
-            }
-
-            logs = logs
-                // only store one years worth of data
-                .Where(log => log.Time > DateTime.Today.AddDays(-365))
-                // filter duplicate logs in case of restart in the same minute
-                .GroupBy(logs => logs.Time)
-                .Select(group => group.First())
-                .ToList();
-
-            Logs.AddRange(logs);
-
-            File.WriteAllLines(logFile, Logs.Select(log => log.ToString()));
-        }
-    }
-
     private static string GetLogFilenmame()
     {
         var baseDirectory = AppContext.BaseDirectory;
@@ -72,6 +39,70 @@ public class NetworkMonitor : INetworkMonitor
             ?.Id;
 
         return @$"{baseDirectory}\NetworkMonitor.{networkId}.log";
+    }
+
+    private void InitializeLogs()
+    {
+        LoadNetworkMonitorLogs();
+        PadLogsForMissingTime();
+        FilterLogs();
+    }
+
+    private void LoadNetworkMonitorLogs()
+    {
+        if (File.Exists(logFile))
+        {
+            Logs = File.ReadLines(logFile)
+                .Select(line => Log.Parse(line))
+                .ToList();
+        }
+    }
+
+    private void PadLogsForMissingTime()
+    {
+        var lastStart = LastStart().RoundDown(pollInterval);
+        var last = Logs.LastOrDefault() ?? new();
+
+        if (last.Time < lastStart) last = new() { Time = lastStart };
+
+        var current = GetCurrentLog(pollInterval);
+        var intervals = (int)((current.Time - last.Time) / pollInterval);
+        var deltaBytesReceived = (current.CumulativeBytesReceived - last.CumulativeBytesReceived) / intervals;
+        var deltaBytesSent = (current.CumulativeBytesSent - last.CumulativeBytesSent) / intervals;
+
+        for (var time = last.Time + pollInterval; time <= current.Time; time += pollInterval)
+        {
+            Logs.Add(last = new Log
+            {
+                Time = time,
+                BytesReceived = deltaBytesReceived,
+                BytesSent = deltaBytesSent,
+                CumulativeBytesReceived = last.CumulativeBytesReceived + deltaBytesReceived,
+                CumulativeBytesSent = last.CumulativeBytesSent + deltaBytesSent,
+            });
+        }
+    }
+
+    private void FilterLogs()
+    {
+        // only store one years worth of data
+        Logs = Logs
+            .Where(log => log.Time > DateTime.Today.AddDays(-365))
+            .ToList();
+
+        var duplicates = Logs
+            .GroupBy(logs => logs.Time)
+            .Where(group => group.Count() > 1)
+            .ToList();
+
+        // check for duplicate logs in case of restart in the same minute
+        if (duplicates.Any())
+        {
+            System.Diagnostics.Debugger.Break();
+        }
+
+        // write clean logs file
+        File.WriteAllLines(logFile, Logs.Select(log => log.ToString()));
     }
 
     private static Log previous = default!;
@@ -85,8 +116,8 @@ public class NetworkMonitor : INetworkMonitor
         {
             var stats = intr.GetIPStatistics();
 
-            current.BytesReceived += stats.BytesReceived;
-            current.BytesSent += stats.BytesSent;
+            current.CumulativeBytesReceived += stats.BytesReceived;
+            current.CumulativeBytesSent += stats.BytesSent;
         }
 
         if (previous == null) previous = current;
@@ -94,8 +125,10 @@ public class NetworkMonitor : INetworkMonitor
         var log = new Log
         {
             Time = current.Time,
-            BytesReceived = current.BytesReceived - previous.BytesReceived,
-            BytesSent = current.BytesSent - previous.BytesSent
+            BytesReceived = current.CumulativeBytesReceived - previous.CumulativeBytesReceived,
+            BytesSent = current.CumulativeBytesSent - previous.CumulativeBytesSent,
+            CumulativeBytesReceived = current.CumulativeBytesReceived,
+            CumulativeBytesSent = current.CumulativeBytesSent
         };
 
         previous = current;
@@ -109,5 +142,12 @@ public class NetworkMonitor : INetworkMonitor
         var nextMinute = now.RoundUp(interval) - now;
 
         await Task.Delay(nextMinute);
+    }
+
+    private static DateTime LastStart()
+    {
+        var uptime = TimeSpan.FromMilliseconds(Environment.TickCount64);
+
+        return DateTime.Now.Add(-uptime);
     }
 }
