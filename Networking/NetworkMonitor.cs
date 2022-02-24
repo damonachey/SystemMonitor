@@ -50,6 +50,7 @@ public class NetworkMonitor : INetworkMonitor
         LoadNetworkMonitorLogs();
         PadLogsForMissingTime();
         FilterLogs();
+        DebugValidateLogs();
     }
 
     private void LoadNetworkMonitorLogs()
@@ -72,7 +73,11 @@ public class NetworkMonitor : INetworkMonitor
         var current = GetCurrentLog(pollInterval);
         var intervals = (int)((current.Time - last.Time) / pollInterval);
 
-        if (intervals == 0) return;
+        if (intervals == 0)
+        {
+            previous = last; 
+            return;
+        }
 
         var deltaBytesReceived = (current.CumulativeBytesReceived - last.CumulativeBytesReceived) / intervals;
         var deltaBytesSent = (current.CumulativeBytesSent - last.CumulativeBytesSent) / intervals;
@@ -88,6 +93,8 @@ public class NetworkMonitor : INetworkMonitor
                 CumulativeBytesSent = last.CumulativeBytesSent + deltaBytesSent,
             });
         }
+
+        previous = Logs.Last();
     }
 
     private void FilterLogs()
@@ -97,6 +104,12 @@ public class NetworkMonitor : INetworkMonitor
             .Where(log => log.Time > DateTime.Today.AddDays(-365))
             .ToList();
 
+        // write clean logs file
+        File.WriteAllLines(logFile, Logs.Select(log => log.ToString()));
+    }
+
+    private void DebugValidateLogs()
+    {
         var duplicates = Logs
             .GroupBy(logs => logs.Time)
             .Where(group => group.Count() > 1)
@@ -105,11 +118,29 @@ public class NetworkMonitor : INetworkMonitor
         // check for duplicate logs in case of restart in the same minute
         if (duplicates.Any())
         {
+            foreach (var duplicate in duplicates)
+            {
+                var logStr = System.Text.Json.JsonSerializer.Serialize(duplicate);
+
+                System.Diagnostics.Debug.WriteLine($"WARNING Duplicate: {logStr}");
+            }
+
             System.Diagnostics.Debugger.Break();
         }
 
-        // write clean logs file
-        File.WriteAllLines(logFile, Logs.Select(log => log.ToString()));
+        for (var i = 1; i < Logs.Count; i++)
+        {
+            var diffBytesReceived = Logs[i].CumulativeBytesReceived - Logs[i - 1].CumulativeBytesReceived;
+            var diffBytesSent = Logs[i].CumulativeBytesSent - Logs[i - 1].CumulativeBytesSent;
+
+            if (diffBytesReceived != Logs[i].BytesReceived || diffBytesSent != Logs[i].BytesSent)
+            {
+                var logStr = System.Text.Json.JsonSerializer.Serialize(Logs[i]);
+
+                System.Diagnostics.Debug.WriteLine($"WARNING Math error: {logStr}");
+                System.Diagnostics.Debugger.Break();
+            }
+        }
     }
 
     private static Log previous = default!;

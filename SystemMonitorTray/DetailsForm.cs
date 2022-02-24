@@ -80,7 +80,7 @@ public partial class DetailsForm : Form
             BackColor = BackColor,
             ForeColor = ForeColor,
             Size = new Size(this.ClientSize.Width, this.ClientSize.Height - 150),
-            //TabStop = false,  // TODO:
+            TabStop = false,
         };
         chart.Titles.Add("Usage").ForeColor = ForeColor;
 
@@ -129,22 +129,6 @@ public partial class DetailsForm : Form
             XValueType = ChartValueType.DateTime,
         };
         chart.Series.Add(seriesReceived);
-
-        // TODO: move to settings page
-        chart.KeyDown += (o, e) =>
-        {
-            if (e.KeyCode == Keys.C)
-            {
-                chart.Series[0].ChartType = SeriesChartType.Column;
-                chart.Series[1].ChartType = SeriesChartType.Column;
-            }
-
-            if (e.KeyCode == Keys.S)
-            {
-                chart.Series[0].ChartType = SeriesChartType.SplineArea;
-                chart.Series[1].ChartType = SeriesChartType.SplineArea;
-            }
-        };
     }
 
     private record class RangeItem(string Name, Range Value);
@@ -174,6 +158,22 @@ public partial class DetailsForm : Form
         });
         range.SelectionChangeCommitted += (o, e) => UpdateNetworkData();
         range.SelectedIndex = 0;
+
+        // TODO: move to settings page
+        range.KeyDown += (o, e) =>
+        {
+            if (e.KeyCode == Keys.C)
+            {
+                chart.Series[0].ChartType = SeriesChartType.Column;
+                chart.Series[1].ChartType = SeriesChartType.Column;
+            }
+
+            if (e.KeyCode == Keys.S)
+            {
+                chart.Series[0].ChartType = SeriesChartType.SplineArea;
+                chart.Series[1].ChartType = SeriesChartType.SplineArea;
+            }
+        };
 
         units = new()
         {

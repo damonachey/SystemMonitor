@@ -96,16 +96,15 @@ public partial class Tray : Form
     {
         count++;
 
-        trayIcon.Icon.Dispose();
-        trayIcon.Icon = IconHelper.GenerateIcon(35);
+        var month = networkMonitor.Logs
+            .Where(log => log.Time >= DateTime.Now.StartOfMonth())
+            .Sum(log => log.BytesTotal) / Constants.GB;
 
-        //var current = (long)(NetworkMonitor.GetDetails().ByteReceivedLast1m / 1e6);
-        //
-        //if (current != last)
-        //{
-        //    last = current;
-        //
-        //    trayIcon.Icon = IconHelper.GenerateIcon($"{current}");
+        var limit = 900;
+
+        trayIcon.Icon.Dispose();
+        trayIcon.Icon = IconHelper.GenerateIcon(month / limit);
+
         //
         //    // TODO: allow show balloon every... 5GB used?
         //    trayIcon.ShowBalloonTip(10000, "Test Title", $"Used {current} MB", ToolTipIcon.Info);
