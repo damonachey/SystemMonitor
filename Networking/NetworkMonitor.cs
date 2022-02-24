@@ -19,26 +19,19 @@ public class NetworkMonitor : INetworkMonitor
 
     public async Task Start()
     {
-        try
+        InitializeLogs();
+        await DelayNext(pollInterval);
+
+        while (true)
         {
-            InitializeLogs();
+            var log = GetCurrentLog(pollInterval);
+
+            Logs.Add(log);
+            File.AppendAllLines(logFile, new[] { log.ToString() });
+
+            _ = Task.Run(() => OnUpdate?.Invoke());
+
             await DelayNext(pollInterval);
-
-            while (true)
-            {
-                var log = GetCurrentLog(pollInterval);
-
-                Logs.Add(log);
-                File.AppendAllLines(logFile, new[] { log.ToString() });
-
-                _ = Task.Run(() => OnUpdate?.Invoke());
-
-                await DelayNext(pollInterval);
-            }
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine(ex.ToString());
         }
     }
 

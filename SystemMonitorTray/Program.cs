@@ -29,7 +29,11 @@ internal static class Program
         var logPath = Path.GetDirectoryName(ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoamingAndLocal).FilePath);
 
         var networkMonitor = new NetworkMonitor(logPath!);
-        _ = networkMonitor.Start();
+
+        // if this call ever returns it will only be for an error condition
+        networkMonitor
+            .Start()
+            .ContinueWith(task => UserCrashMessage(task.Exception!));
 
         var application = new Tray(networkMonitor);
 
@@ -49,11 +53,11 @@ internal static class Program
     private static void UserCrashMessage(Exception ex)
     {
         var dialogResult = MessageBox.Show(
-            "!!! SystemMonitor failed and will exit !!!\n\n" + 
-            "Would you like to send a crash report?\n\n" + 
-            "(If you choose 'OK' your email application will open with a crash message.  Just hit 'Send' to complete the report submission.)", 
-            "System Monitor Error", 
-            MessageBoxButtons.OKCancel, 
+            "!!! SystemMonitor failed and will exit !!!\n\n" +
+            "Would you like to send a crash report?\n\n" +
+            "(If you choose 'OK' your email application will open with a crash message.  Just hit 'Send' to complete the report submission.)",
+            "System Monitor Error",
+            MessageBoxButtons.OKCancel,
             MessageBoxIcon.Error);
 
         if (dialogResult == DialogResult.OK)
