@@ -7,20 +7,24 @@ namespace SystemMonitorTray;
 public partial class DetailsForm : Form
 {
     private static readonly Size minimumSize = new(400, 300);
-    private static readonly Padding padding = new(6);
+    private static readonly Padding padding = new(0, 6, 0, 6);
     private static readonly SeriesChartType chartType = SeriesChartType.SplineArea;
 
     private INetworkMonitor networkMonitor = default!;
     private Chart chart = default!;
     private ComboBox units = default!;
     private ComboBox range = default!;
-    private readonly Label totalHour = new() { AutoSize = true, Padding = padding };
-    private readonly Label totalDay = new() { AutoSize = true, Padding = padding };
-    private readonly Label total24Hours = new() { AutoSize = true, Padding = padding };
-    private readonly Label totalWeek = new() { AutoSize = true, Padding = padding };
-    private readonly Label total7Days = new() { AutoSize = true, Padding = padding };
-    private readonly Label totalMonth = new() { AutoSize = true, Padding = padding };
-    private readonly Label total30Days = new() { AutoSize = true, Padding = padding };
+
+    private static Label LeftLabel(string text = "") => new() { Text = text, AutoSize = true, MinimumSize = new Size(100, 0), Padding = padding, TextAlign = ContentAlignment.MiddleLeft };
+    private static Label RightLabel(string text = "") => new() { Text = text, AutoSize = true, MinimumSize = new Size(80, 0), Padding = padding, TextAlign = ContentAlignment.MiddleRight };
+
+    private readonly Label totalHour = RightLabel();
+    private readonly Label totalDay = RightLabel();
+    private readonly Label total24Hours = RightLabel();
+    private readonly Label totalWeek = RightLabel();
+    private readonly Label total7Days = RightLabel();
+    private readonly Label totalMonth = RightLabel();
+    private readonly Label total30Days = RightLabel();
 
     public DetailsForm(INetworkMonitor networkMonitor)
     {
@@ -154,8 +158,8 @@ public partial class DetailsForm : Form
             DisplayMember = "Name",
             Dock = DockStyle.Top,
             DropDownStyle = ComboBoxStyle.DropDownList,
-            DropDownWidth = 100,
             ValueMember = "Value",
+            Width = 80,
         };
         range.Items.AddRange(new RangeItem[]
         {
@@ -177,8 +181,8 @@ public partial class DetailsForm : Form
             DisplayMember = "Name",
             Dock = DockStyle.Top,
             DropDownStyle = ComboBoxStyle.DropDownList,
-            DropDownWidth = 100,
             ValueMember = "Value",
+            Width = 80,
         };
         units.Items.AddRange(new UnitItem[]
         {
@@ -198,39 +202,31 @@ public partial class DetailsForm : Form
         var layout = new FlowLayoutPanel { Dock = DockStyle.Fill };
         layout.Controls.Add(chart);
 
-        layout.Controls.Add(new Label { Text = "Range:", AutoSize = true, Padding = padding });
+        layout.Controls.Add(new Label { Text = "Range:", AutoSize = true, MinimumSize = new Size(100, 0), Padding = padding });
         layout.Controls.Add(range);
-        layout.Controls.Add(new Label { Text = "Units:", AutoSize = true, Padding = padding });
+        layout.Controls.Add(new Label { Text = "Units:", AutoSize = true, MinimumSize = new Size(100, 0), Padding = padding });
         layout.Controls.Add(units);
         layout.SetFlowBreak(units, true);
 
-        static Label GetLabel(string text) => new()
-        {
-            Text = text,
-            AutoSize = true,
-            MinimumSize = new Size(100, 0),
-            Padding = padding
-        };
-
-        layout.Controls.Add(GetLabel("Total Hour:"));
+        layout.Controls.Add(LeftLabel("Total Hour:"));
         layout.Controls.Add(totalHour);
         layout.SetFlowBreak(totalHour, true);
 
-        layout.Controls.Add(GetLabel("Total Day:"));
+        layout.Controls.Add(LeftLabel("Total Day:"));
         layout.Controls.Add(totalDay);
-        layout.Controls.Add(GetLabel("Total 24 Hours:"));
+        layout.Controls.Add(LeftLabel("Total 24 Hours:"));
         layout.Controls.Add(total24Hours);
         layout.SetFlowBreak(total24Hours, true);
 
-        layout.Controls.Add(GetLabel("Total Week:"));
+        layout.Controls.Add(LeftLabel("Total Week:"));
         layout.Controls.Add(totalWeek);
-        layout.Controls.Add(GetLabel("Total 7 Days:"));
+        layout.Controls.Add(LeftLabel("Total 7 Days:"));
         layout.Controls.Add(total7Days);
         layout.SetFlowBreak(total7Days, true);
 
-        layout.Controls.Add(GetLabel("Total Month:"));
+        layout.Controls.Add(LeftLabel("Total Month:"));
         layout.Controls.Add(totalMonth);
-        layout.Controls.Add(GetLabel("Total 30 Days:"));
+        layout.Controls.Add(LeftLabel("Total 30 Days:"));
         layout.Controls.Add(total30Days);
         layout.SetFlowBreak(total30Days, true);
 
