@@ -32,7 +32,6 @@ internal class ControlCreator
         if (!radioGroups.ContainsKey(group))
         {
             radioGroups.Add(group, new());
-            button.PerformClick();
         }
 
         radioGroups[group].Add(button);
