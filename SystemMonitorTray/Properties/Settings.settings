@@ -20,7 +20,7 @@
     <Setting Name="detailsFormSize" Type="System.Drawing.Size" Scope="User">
       <Value Profile="(Default)">800, 600</Value>
     </Setting>
-	<Setting Name="detailsFormReceivedChartColor" Type="System.Drawing.Color" Scope="User">
+    <Setting Name="detailsFormReceivedChartColor" Type="System.Drawing.Color" Scope="User">
       <Value Profile="(Default)">65, 140, 240</Value>
     </Setting>
     <Setting Name="detailsFormSentChartColor" Type="System.Drawing.Color" Scope="User">
@@ -31,6 +31,12 @@
     </Setting>
     <Setting Name="settingsFormSize" Type="System.Drawing.Size" Scope="User">
       <Value Profile="(Default)">800, 600</Value>
+    </Setting>
+    <Setting Name="detailsSelectedRange" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
+    <Setting Name="detailsSelectedUnit" Type="System.Int64" Scope="User">
+      <Value Profile="(Default)">1048576</Value>
     </Setting>
   </Settings>
 </SettingsFile>

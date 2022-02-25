@@ -19,6 +19,9 @@ public partial class DetailsForm : Form
         MinimumSize = new(600, 300);
         StartPosition = FormStartPosition.Manual;
 
+        selectedRange = (Range)Properties.Settings.Default.detailsSelectedRange;
+        selectedUnit = (Unit)Properties.Settings.Default.detailsSelectedUnit;
+
         InitializeComponent();
         InitializeChartSettingsButtons();
         InitializeChart();
@@ -81,6 +84,7 @@ public partial class DetailsForm : Form
             range.Click += (s, e) =>
             {
                 selectedRange = (Range)range.Tag;
+                Properties.Settings.Default.detailsSelectedRange = (int)selectedRange;
                 UpdateChart();
             };
         }
@@ -111,6 +115,7 @@ public partial class DetailsForm : Form
             unit.Click += (s, e) =>
             {
                 selectedUnit = (Unit)unit.Tag;
+                Properties.Settings.Default.detailsSelectedUnit = (long)selectedUnit;
                 UpdateChart();
             };
         }

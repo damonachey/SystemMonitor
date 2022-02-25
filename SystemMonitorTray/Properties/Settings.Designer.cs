@@ -94,36 +94,31 @@ namespace SystemMonitorTray.Properties {
                 this["detailsFormSize"] = value;
             }
         }
-
+        
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("65, 140, 240")]
-        public global::System.Drawing.Color detailsFormReceivedChartColor
-        {
-            get
-            {
+        public global::System.Drawing.Color detailsFormReceivedChartColor {
+            get {
                 return ((global::System.Drawing.Color)(this["detailsFormReceivedChartColor"]));
             }
-            set
-            {
+            set {
                 this["detailsFormReceivedChartColor"] = value;
             }
         }
-
+        
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("252, 180, 65")]
-        public global::System.Drawing.Color detailsFormSentChartColor
-        {
-            get
-            {
+        public global::System.Drawing.Color detailsFormSentChartColor {
+            get {
                 return ((global::System.Drawing.Color)(this["detailsFormSentChartColor"]));
             }
-            set
-            {
+            set {
                 this["detailsFormSentChartColor"] = value;
             }
         }
+        
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("200, 200")]
@@ -145,6 +140,30 @@ namespace SystemMonitorTray.Properties {
             }
             set {
                 this["settingsFormSize"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int detailsSelectedRange {
+            get {
+                return ((int)(this["detailsSelectedRange"]));
+            }
+            set {
+                this["detailsSelectedRange"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1048576")]
+        public long detailsSelectedUnit {
+            get {
+                return ((long)(this["detailsSelectedUnit"]));
+            }
+            set {
+                this["detailsSelectedUnit"] = value;
             }
         }
     }
