@@ -19,8 +19,13 @@ public class NetworkMonitor : INetworkMonitor
 
     public async Task Start()
     {
+        if (previous != null)
+        {
+            throw new NotSupportedException("Only one instance of NetworkMonitor can be run at a time");
+        }
+
         InitializeLogs();
-        await DelayNext(pollInterval);
+        await Delay.Next(pollInterval);
 
         while (true)
         {
@@ -31,7 +36,7 @@ public class NetworkMonitor : INetworkMonitor
 
             _ = Task.Run(() => OnUpdate?.Invoke());
 
-            await DelayNext(pollInterval);
+            await Delay.Next(pollInterval);
         }
     }
 
@@ -65,7 +70,7 @@ public class NetworkMonitor : INetworkMonitor
 
     private void PadLogsForMissingTime()
     {
-        var lastStart = LastStart().RoundDown(pollInterval);
+        var lastStart = Uptime.LastStart().RoundDown(pollInterval);
         var last = Logs.LastOrDefault() ?? new();
 
         if (last.Time < lastStart) last = new() { Time = lastStart };
@@ -115,7 +120,6 @@ public class NetworkMonitor : INetworkMonitor
             .Where(group => group.Count() > 1)
             .ToList();
 
-        // check for duplicate logs in case of restart in the same minute
         if (duplicates.Any())
         {
             foreach (var duplicate in duplicates)
@@ -138,6 +142,7 @@ public class NetworkMonitor : INetworkMonitor
                 var logStr = System.Text.Json.JsonSerializer.Serialize(Logs[i]);
 
                 System.Diagnostics.Debug.WriteLine($"WARNING Math error: {logStr}");
+         
                 System.Diagnostics.Debugger.Break();
             }
         }
@@ -172,20 +177,5 @@ public class NetworkMonitor : INetworkMonitor
         previous = current;
 
         return log;
-    }
-
-    private static async Task DelayNext(TimeSpan interval)
-    {
-        var now = DateTime.Now;
-        var nextMinute = now.RoundUp(interval) - now;
-
-        await Task.Delay(nextMinute);
-    }
-
-    private static DateTime LastStart()
-    {
-        var uptime = TimeSpan.FromMilliseconds(Environment.TickCount64);
-
-        return DateTime.Now.Add(-uptime);
     }
 }
