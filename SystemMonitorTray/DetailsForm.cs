@@ -8,7 +8,7 @@ public partial class DetailsForm : Form
 {
     private INetworkMonitor networkMonitor = default!;
     private Chart chart = default!;
-    private List<Label> totals = default!;
+    private List<(string Description, Label Value, Range Range)> totals = default!;
     private Range selectedRange = Range.Hour;
     private Unit selectedUnit = Unit.MB;
 
@@ -179,27 +179,28 @@ public partial class DetailsForm : Form
     {
         totals = new()
         {
-            //new() { Text = "Total Hour:", Tag = new Label { Tag = Range.Hour } },
-            //new() { Text = "Total All:", Tag = new Label { Tag = Range.All } },
-            new() { Text = "Total Day:", Tag = new Label { Tag = Range.Day } },
-            new() { Text = "Total 24 Hours:", Tag = new Label { Tag = Range.Hours24 } },
-            new() { Text = "Total Week:", Tag = new Label { Tag = Range.Week } },
-            new() { Text = "Total 7 Days:", Tag = new Label { Tag = Range.Days7 } },
-            new() { Text = "Total Month:", Tag = new Label { Tag = Range.Month } },
-            new() { Text = "Total 30 Days:", Tag = new Label { Tag = Range.Days30 } },
+            //("Total Hour:", new(), Range.Hour),
+            //("Total All:", new(),  Range.All),
+            ("Total Day:", new(), Range.Day),
+            ("Total 24 Hours:", new(), Range.Hours24),
+            ("Total Week:", new(), Range.Week),
+            ("Total 7 Days:", new(), Range.Days7),
+            ("Total Month:", new(), Range.Month),
+            ("Total 30 Days:", new(), Range.Days30),
         };
 
         for (var i = 0; i < totals.Count; i++)
         {
-            totals[i].Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            totals[i].Location = new Point(i / 2 * 200 + 10, ClientSize.Height - (totals.Count / 3 - i % 2) * totals[i].Height - 10);
-            totals[i].Width = 80;
-            Controls.Add(totals[i]);
+            var description = new Label { Text = totals[i].Description };
+            description.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            description.Location = new Point(i / 2 * 200 + 10, ClientSize.Height - (totals.Count / 3 - i % 2) * description.Height - 10);
+            description.Width = 80;
+            Controls.Add(description);
 
-            var value = (Label)totals[i].Tag;
+            var value = totals[i].Value;
 
             value.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            value.Location = new Point(totals[i].Location.X + 80, totals[i].Location.Y);
+            value.Location = new Point(description.Location.X + 80, description.Location.Y);
             value.Text = $"- GB";
             value.TextAlign = ContentAlignment.TopRight;
             value.Width = 80;
@@ -227,12 +228,9 @@ public partial class DetailsForm : Form
     {
         foreach (var total in totals)
         {
-            var value = (Label)total.Tag;
-            var range = (Range)value.Tag;
+            var bytes = GetLogs(total.Range).Sum(log => log.BytesTotal);
 
-            var bytes = GetLogs(range).Sum(log => log.BytesTotal);
-
-            value.Text = $"{bytes / (double)Unit.GB:0.000} {nameof(Unit.GB)}";
+            total.Value.Text = $"{bytes / (double)Unit.GB:0.000} {nameof(Unit.GB)}";
         }
     }
 
