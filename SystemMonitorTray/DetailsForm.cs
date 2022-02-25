@@ -150,7 +150,7 @@ public partial class DetailsForm : Form
 
         var seriesSent = new Series
         {
-            ChartType = SeriesChartType.Column,
+            ChartType = SeriesChartType.SplineArea,
             Color = Properties.Settings.Default.detailsFormSentChartColor,
             CustomProperties = "DrawSideBySide=False",
             IsVisibleInLegend = true,
@@ -162,7 +162,7 @@ public partial class DetailsForm : Form
 
         var seriesReceived = new Series
         {
-            ChartType = SeriesChartType.Column,
+            ChartType = SeriesChartType.SplineArea,
             Color = Properties.Settings.Default.detailsFormReceivedChartColor,
             CustomProperties = "DrawSideBySide=False",
             IsVisibleInLegend = true,
@@ -225,14 +225,14 @@ public partial class DetailsForm : Form
 
     private void UpdateTotals()
     {
-        double GetTotal(Range range) => GetLogs(range).Sum(log => log.BytesTotal) / (double)Unit.GB;
-        string GetTotalStr(Range range) => $"{GetTotal(range):0.000} {nameof(Unit.GB)}";
-        
         foreach (var total in totals)
         {
             var value = (Label)total.Tag;
+            var range = (Range)value.Tag;
 
-            value.Text = GetTotalStr((Range)value.Tag);
+            var bytes = GetLogs(range).Sum(log => log.BytesTotal);
+
+            value.Text = $"{bytes / (double)Unit.GB:0.000} {nameof(Unit.GB)}";
         }
     }
 
@@ -256,10 +256,10 @@ public partial class DetailsForm : Form
         var (earlist, size) = range switch
         {
             Range.Hour => (DateTime.Now.AddHours(-1), TimeSpan.FromMinutes(1)),
-            Range.Day => (DateTime.Today, TimeSpan.FromMinutes(30)),
-            Range.Hours24 => (DateTime.Now.AddHours(-24), TimeSpan.FromMinutes(30)),
-            Range.Week => (DateTime.Now.StartOfWeek(), TimeSpan.FromHours(4)),
-            Range.Days7 => (DateTime.Now.AddDays(-7), TimeSpan.FromHours(4)),
+            Range.Day => (DateTime.Today, TimeSpan.FromMinutes(15)),
+            Range.Hours24 => (DateTime.Now.AddHours(-24), TimeSpan.FromMinutes(15)),
+            Range.Week => (DateTime.Now.StartOfWeek(), TimeSpan.FromHours(1)),
+            Range.Days7 => (DateTime.Now.AddDays(-7), TimeSpan.FromHours(1)),
             Range.Month => (DateTime.Now.StartOfMonth(), TimeSpan.FromHours(8)),
             Range.Days30 => (DateTime.Now.AddDays(-30), TimeSpan.FromHours(8)),
             Range.All => (DateTime.MinValue, TimeSpan.FromDays(7)),
@@ -268,7 +268,7 @@ public partial class DetailsForm : Form
 
         var logs = networkMonitor.Logs
             .Where(log => log.Time >= earlist)
-            .GroupBy(log => log.Time.Ticks / TimeSpan.FromMinutes(1).Ticks)//size.Ticks) // TODO: 
+            .GroupBy(log => log.Time.Ticks / size.Ticks)
             .Select(g => new Log
             {
                 Time = g.First().Time,
