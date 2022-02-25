@@ -88,7 +88,7 @@ public partial class DetailsForm : Form
                 UpdateChart();
             };
         }
-        
+
         Controls.AddRange(ranges);
 
         var units = new RadioButtonGroup();
@@ -157,29 +157,20 @@ public partial class DetailsForm : Form
         ca.AxisY.MajorTickMark.LineColor = ForeColor;
         chart.ChartAreas.Add(ca);
 
-        var seriesSent = new Series
-        {
-            ChartType = SeriesChartType.SplineArea,
-            Color = Properties.Settings.Default.detailsFormSentChartColor,
-            CustomProperties = "DrawSideBySide=False",
-            IsVisibleInLegend = true,
-            LabelForeColor = ForeColor,
-            Name = "Sent",
-            XValueType = ChartValueType.DateTime,
+        var series = new[] {
+            new Series("Sent") { Color = Properties.Settings.Default.detailsFormSentChartColor },
+            new Series("Received") { Color = Properties.Settings.Default.detailsFormReceivedChartColor },
         };
-        chart.Series.Add(seriesSent);
 
-        var seriesReceived = new Series
+        foreach (var s in series)
         {
-            ChartType = SeriesChartType.SplineArea,
-            Color = Properties.Settings.Default.detailsFormReceivedChartColor,
-            CustomProperties = "DrawSideBySide=False",
-            IsVisibleInLegend = true,
-            LabelForeColor = ForeColor,
-            Name = "Received",
-            XValueType = ChartValueType.DateTime,
+            s.ChartType = SeriesChartType.SplineArea;
+            s.CustomProperties = "DrawSideBySide=False";
+            s.IsVisibleInLegend = true;
+            s.LabelForeColor = ForeColor;
+            s.XValueType = ChartValueType.DateTime;
+            chart.Series.Add(s);
         };
-        chart.Series.Add(seriesReceived);
 
         Controls.Add(chart);
     }
