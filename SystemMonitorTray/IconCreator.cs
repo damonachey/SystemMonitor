@@ -2,9 +2,9 @@
 
 namespace SystemMonitorTray;
 
-internal class IconHelper
+internal class IconCreator
 {
-    public static Icon GenerateIcon(double percentage)
+    public static Icon CreateIcon(double percentage)
     {
         using var bmp = new Bitmap(32, 32);
         using var g = Graphics.FromImage(bmp);

@@ -22,7 +22,7 @@ public partial class Tray : Form
         trayIcon = new()
         {
             Text = "System Monitor",
-            Icon = IconHelper.GenerateIcon(-1),
+            Icon = IconCreator.CreateIcon(-1),
             ContextMenuStrip = GetContextMenu(),
             Visible = true,
         };
@@ -103,7 +103,7 @@ public partial class Tray : Form
         var limit = 900;
 
         trayIcon.Icon.Dispose();
-        trayIcon.Icon = IconHelper.GenerateIcon(month / limit);
+        trayIcon.Icon = IconCreator.CreateIcon(month / limit);
 
         //
         //    // TODO: allow show balloon every... 5GB used?
