@@ -1,18 +1,12 @@
 ﻿namespace SystemMonitorTray;
 
-internal class ControlCreator
+internal class RadioButtonGroup : List<Button>
 {
-    private static readonly Dictionary<int, List<Button>> radioGroups = new();
-
-    public static Button CreateRadioButton(int group, string text, object value, Size? size = null, Font? font = null)
+    public Button CreateRadioButton(string text, object value)
     {
-        radioGroups.TryGetValue(group, out var buttons);
-        var previous = buttons?.Last();
         var button = new Button()
         {
             Text = text,
-            Font = previous?.Font ?? font,
-            Size = previous?.Size ?? size!.Value,
             FlatStyle = FlatStyle.Flat,
             TabStop = false,
             Tag = value,
@@ -21,7 +15,7 @@ internal class ControlCreator
         button.FlatAppearance.BorderColor = Color.Gray;
         button.Click += (s, e) =>
         {
-            foreach (var b in radioGroups[group])
+            foreach (var b in this)
             {
                 b.BackColor = Properties.Settings.Default.applicationBackgroundColor;
             }
@@ -29,9 +23,13 @@ internal class ControlCreator
             ((Button)s!).BackColor = Color.Gray;
         };
 
-        radioGroups.TryAdd(group, new());
-        radioGroups[group].Add(button);
+        Add(button);
 
         return button;
+    }
+
+    public static implicit operator Control[](RadioButtonGroup group)
+    {
+        return group.ToArray();
     }
 }

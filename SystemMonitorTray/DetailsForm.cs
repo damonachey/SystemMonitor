@@ -46,7 +46,7 @@ public partial class DetailsForm : Form
         {
             SetDesktopLocation(0, 0);
         }
-    
+
         FormClosing += (s, e) => SaveWindowPosition();
         LocationChanged += (s, e) => SaveWindowPosition();
         Shown += (s, e) => UpdateNetworkData();
@@ -55,34 +55,24 @@ public partial class DetailsForm : Form
 
     private void InitializeChartSettingsButtons()
     {
-        var ranges = new[]
-        {
-            ControlCreator.CreateRadioButton(1, "1h", Range.Hour, new(40, 25), new(Font, FontStyle.Bold)),
-            ControlCreator.CreateRadioButton(1, "1d", Range.Day),
-            ControlCreator.CreateRadioButton(1, "24h", Range.Hours24),
-            ControlCreator.CreateRadioButton(1, "1w", Range.Week),
-            ControlCreator.CreateRadioButton(1, "7d", Range.Days7),
-            ControlCreator.CreateRadioButton(1, "1M", Range.Month),
-            ControlCreator.CreateRadioButton(1, "30d", Range.Days30),
-            ControlCreator.CreateRadioButton(1, "All", Range.All),
-        };
+        var ranges = new RadioButtonGroup();
+        ranges.CreateRadioButton("1h", Range.Hour);
+        ranges.CreateRadioButton("1d", Range.Day);
+        ranges.CreateRadioButton("24h", Range.Hours24);
+        ranges.CreateRadioButton("1w", Range.Week);
+        ranges.CreateRadioButton("7d", Range.Days7);
+        ranges.CreateRadioButton("1M", Range.Month);
+        ranges.CreateRadioButton("30d", Range.Days30);
+        ranges.CreateRadioButton("All", Range.All);
 
-        var units = new[]
-        {
-            ControlCreator.CreateRadioButton(2, nameof(Unit.B), Unit.B, new(40, 25), new(Font, FontStyle.Bold)),
-            ControlCreator.CreateRadioButton(2, nameof(Unit.KB), Unit.KB),
-            ControlCreator.CreateRadioButton(2, nameof(Unit.MB), Unit.MB),
-            ControlCreator.CreateRadioButton(2, nameof(Unit.GB), Unit.GB),
-            ControlCreator.CreateRadioButton(2, nameof(Unit.TB), Unit.TB),
-            ControlCreator.CreateRadioButton(2, nameof(Unit.PB), Unit.PB),
-        };
-
-        for (var i = 0; i < ranges.Length; i++)
+        for (var i = 0; i < ranges.Count; i++)
         {
             var range = ranges[i];
-            range.Location = new Point(i * range.Width, 0);
             range.Anchor = AnchorStyles.Top | AnchorStyles.Left;
-            
+            range.Font = new(Font, FontStyle.Bold);
+            range.Location = new Point(i * 40, 0);
+            range.Size = new(40, 25);
+
             if ((Range)range.Tag == selectedRange)
             {
                 range.PerformClick();
@@ -94,12 +84,24 @@ public partial class DetailsForm : Form
                 UpdateChart();
             };
         }
+        
+        Controls.AddRange(ranges);
 
-        for (var i = 0; i < units.Length; i++)
+        var units = new RadioButtonGroup();
+        units.CreateRadioButton(nameof(Unit.B), Unit.B);
+        units.CreateRadioButton(nameof(Unit.KB), Unit.KB);
+        units.CreateRadioButton(nameof(Unit.MB), Unit.MB);
+        units.CreateRadioButton(nameof(Unit.GB), Unit.GB);
+        units.CreateRadioButton(nameof(Unit.TB), Unit.TB);
+        units.CreateRadioButton(nameof(Unit.PB), Unit.PB);
+
+        for (var i = 0; i < units.Count; i++)
         {
             var unit = units[i];
-            unit.Location = new Point(ClientSize.Width - (units.Length - i) * unit.Width);
             unit.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            unit.Font = new(Font, FontStyle.Bold);
+            unit.Location = new Point(ClientSize.Width - (units.Count - i) * 40);
+            unit.Size = new(40, 25);
 
             if ((Unit)unit.Tag == selectedUnit)
             {
@@ -113,7 +115,6 @@ public partial class DetailsForm : Form
             };
         }
 
-        Controls.AddRange(ranges);
         Controls.AddRange(units);
     }
 
