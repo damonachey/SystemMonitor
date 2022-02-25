@@ -98,7 +98,7 @@ public partial class Tray : Form
 
         var month = networkMonitor.Logs
             .Where(log => log.Time >= DateTime.Now.StartOfMonth())
-            .Sum(log => log.BytesTotal) / Constants.GB;
+            .Sum(log => log.BytesTotal) / (double)Unit.GB;
 
         var limit = 900;
 

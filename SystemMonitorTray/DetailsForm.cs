@@ -6,59 +6,36 @@ namespace SystemMonitorTray;
 
 public partial class DetailsForm : Form
 {
-    private static readonly Size minimumSize = new(400, 300);
-    private static readonly Padding padding = new(0, 6, 0, 6);
-    private static readonly SeriesChartType chartType = SeriesChartType.Area;
-
     private INetworkMonitor networkMonitor = default!;
     private Chart chart = default!;
-    private ComboBox units = default!;
-    private ComboBox range = default!;
-
-    private static Label LeftLabel(string text = "") => new() { Text = text, AutoSize = true, MinimumSize = new Size(100, 0), Padding = padding, TextAlign = ContentAlignment.MiddleLeft };
-    private static Label RightLabel(string text = "") => new() { Text = text, AutoSize = true, MinimumSize = new Size(80, 0), Padding = padding, TextAlign = ContentAlignment.MiddleRight };
-
-    private readonly Label totalHour = RightLabel();
-    private readonly Label totalDay = RightLabel();
-    private readonly Label total24Hours = RightLabel();
-    private readonly Label totalWeek = RightLabel();
-    private readonly Label total7Days = RightLabel();
-    private readonly Label totalMonth = RightLabel();
-    private readonly Label total30Days = RightLabel();
+    private List<Label> totals = default!;
+    private Range selectedRange = Range.Hour;
+    private Unit selectedUnit = Unit.MB;
 
     public DetailsForm(INetworkMonitor networkMonitor)
     {
         BackColor = Properties.Settings.Default.applicationBackgroundColor;
         ForeColor = Properties.Settings.Default.applicationForegroundColor;
-        MinimumSize = minimumSize;
+        MinimumSize = new(600, 300);
         StartPosition = FormStartPosition.Manual;
 
         InitializeComponent();
+        InitializeChartSettingsButtons();
         InitializeChart();
-        InitializeChartConfiguration();
-        InitialzeLayout();
+        InitializeTotals();
         InitializeNetworkMonitor(networkMonitor);
 
         FormClosing += OnFormClosing;
         Load += OnLoad;
-        SizeChanged += OnSizeChanged;
         Shown += (o, e) => UpdateNetworkData();
     }
 
     private void OnFormClosing(object? sender, EventArgs e)
     {
-        if (Size.Width >= minimumSize.Width && Size.Height >= minimumSize.Height)
+        if (Size.Width >= MinimumSize.Width && Size.Height >= MinimumSize.Height)
         {
             Properties.Settings.Default.detailsFormLocation = Location;
             Properties.Settings.Default.detailsFormSize = Size;
-        }
-    }
-
-    private void OnSizeChanged(object? sender, EventArgs e)
-    {
-        if (WindowState != FormWindowState.Minimized)
-        {
-            chart.Size = new Size(ClientSize.Width, this.ClientSize.Height - 150);
         }
     }
 
@@ -73,13 +50,79 @@ public partial class DetailsForm : Form
         }
     }
 
+    private void InitializeChartSettingsButtons()
+    {
+        var ranges = new[]
+        {
+            ControlCreator.CreateRadioButton(1, "1h", Range.Hour, new(40, 25), new(Font, FontStyle.Bold)),
+            ControlCreator.CreateRadioButton(1, "1d", Range.Day),
+            ControlCreator.CreateRadioButton(1, "24h", Range.Hours24),
+            ControlCreator.CreateRadioButton(1, "1w", Range.Week),
+            ControlCreator.CreateRadioButton(1, "7d", Range.Days7),
+            ControlCreator.CreateRadioButton(1, "1M", Range.Month),
+            ControlCreator.CreateRadioButton(1, "30d", Range.Days30),
+            ControlCreator.CreateRadioButton(1, "All", Range.All),
+        };
+
+        var units = new[]
+        {
+            ControlCreator.CreateRadioButton(2, nameof(Unit.B), Unit.B, new(40, 25), new(Font, FontStyle.Bold)),
+            ControlCreator.CreateRadioButton(2, nameof(Unit.KB), Unit.KB),
+            ControlCreator.CreateRadioButton(2, nameof(Unit.MB), Unit.MB),
+            ControlCreator.CreateRadioButton(2, nameof(Unit.GB), Unit.GB),
+            ControlCreator.CreateRadioButton(2, nameof(Unit.TB), Unit.TB),
+            ControlCreator.CreateRadioButton(2, nameof(Unit.PB), Unit.PB),
+        };
+
+        for (var i = 0; i < ranges.Length; i++)
+        {
+            var range = ranges[i];
+            range.Location = new Point(i * range.Width, 0);
+            range.Anchor = AnchorStyles.Top | AnchorStyles.Left;
+            
+            if ((Range)range.Tag == selectedRange)
+            {
+                range.PerformClick();
+            }
+
+            range.Click += (o, e) =>
+            {
+                selectedRange = (Range)range.Tag;
+                UpdateChart();
+            };
+        }
+
+        for (var i = 0; i < units.Length; i++)
+        {
+            var unit = units[i];
+            unit.Location = new Point(ClientSize.Width - (units.Length - i) * unit.Width);
+            unit.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+
+            if ((Unit)unit.Tag == selectedUnit)
+            {
+                unit.PerformClick();
+            }
+
+            unit.Click += (o, e) =>
+            {
+                selectedUnit = (Unit)unit.Tag;
+                UpdateChart();
+            };
+        }
+
+        Controls.AddRange(ranges);
+        Controls.AddRange(units);
+    }
+
     private void InitializeChart()
     {
         chart = new()
         {
+            Anchor = AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Top | AnchorStyles.Bottom,
             BackColor = BackColor,
             ForeColor = ForeColor,
-            Size = new Size(this.ClientSize.Width, this.ClientSize.Height - 150),
+            Location = new Point(0, 25),
+            Size = new Size(this.ClientSize.Width, this.ClientSize.Height - 100),
             TabStop = false,
         };
 
@@ -107,7 +150,7 @@ public partial class DetailsForm : Form
 
         var seriesSent = new Series
         {
-            ChartType = chartType,
+            ChartType = SeriesChartType.Column,
             Color = Properties.Settings.Default.detailsFormSentChartColor,
             CustomProperties = "DrawSideBySide=False",
             IsVisibleInLegend = true,
@@ -119,7 +162,7 @@ public partial class DetailsForm : Form
 
         var seriesReceived = new Series
         {
-            ChartType = chartType,
+            ChartType = SeriesChartType.Column,
             Color = Properties.Settings.Default.detailsFormReceivedChartColor,
             CustomProperties = "DrawSideBySide=False",
             IsVisibleInLegend = true,
@@ -128,161 +171,40 @@ public partial class DetailsForm : Form
             XValueType = ChartValueType.DateTime,
         };
         chart.Series.Add(seriesReceived);
+
+        Controls.Add(chart);
     }
 
-    private record class RangeItem(string Name, Range Value);
-    private record class UnitItem(string Name, double Value);
-
-    private readonly Dictionary<int, List<Button>> radioGroups = new();
-
-    private void InitializeChartConfiguration()
+    private void InitializeTotals()
     {
-        Button GetRadioButton(int group, string text, Button? b1 = null, Point? location = null)
+        totals = new()
         {
-            var b = new Button()
-            {
-                Text = text,
-                Font = new Font(Font, FontStyle.Bold),
-                Location = location ?? new(b1!.Location.X + b1.Size.Width, b1.Location.Y),
-                Size = new Size(40, 25),
-                FlatStyle = FlatStyle.Flat,
-                TabStop = false,
-            };
-            b.FlatAppearance.BorderSize = 0;
-            b.Click += (o, e) =>
-            {
-                var g = group;
+            //new() { Text = "Total Hour:", Tag = new Label { Tag = Range.Hour } },
+            //new() { Text = "Total All:", Tag = new Label { Tag = Range.All } },
+            new() { Text = "Total Day:", Tag = new Label { Tag = Range.Day } },
+            new() { Text = "Total 24 Hours:", Tag = new Label { Tag = Range.Hours24 } },
+            new() { Text = "Total Week:", Tag = new Label { Tag = Range.Week } },
+            new() { Text = "Total 7 Days:", Tag = new Label { Tag = Range.Days7 } },
+            new() { Text = "Total Month:", Tag = new Label { Tag = Range.Month } },
+            new() { Text = "Total 30 Days:", Tag = new Label { Tag = Range.Days30 } },
+        };
 
-                foreach (var _b in radioGroups[g])
-                {
-                    _b.BackColor = BackColor;
-                }
+        for (var i = 0; i < totals.Count; i++)
+        {
+            totals[i].Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            totals[i].Location = new Point(i / 2 * 200 + 10, ClientSize.Height - (totals.Count / 3 - i % 2) * totals[i].Height - 10);
+            totals[i].Width = 80;
+            Controls.Add(totals[i]);
 
-                ((Button)o!).BackColor = Color.Gray;
-            };
+            var value = (Label)totals[i].Tag;
 
-            if (!radioGroups.ContainsKey(group))
-            {
-                radioGroups.Add(group, new());
-                b.PerformClick();
-            }
-
-            radioGroups[group].Add(b);
-            Controls.Add(b);
-
-            return b;
+            value.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            value.Location = new Point(totals[i].Location.X + 80, totals[i].Location.Y);
+            value.Text = $"- GB";
+            value.TextAlign = ContentAlignment.TopRight;
+            value.Width = 80;
+            Controls.Add(value);
         }
-
-        var r1 = GetRadioButton(1, "1h", location: new(80, 10));
-        var r2 = GetRadioButton(1, "1d", r1);
-        var r3 = GetRadioButton(1, "24h", r2);
-        var r4 = GetRadioButton(1, "1w", r3);
-        var r5 = GetRadioButton(1, "7d", r4);
-        var r6 = GetRadioButton(1, "1M", r5);
-        var r7 = GetRadioButton(1, "1Y", r6);
-
-        var u1 = GetRadioButton(2, nameof(Constants.B), location: new(Width - 4 * 40, 10));
-        var u2 = GetRadioButton(2, nameof(Constants.KB), u1);
-        var u3 = GetRadioButton(2, nameof(Constants.MB), u2);
-        var u4 = GetRadioButton(2, nameof(Constants.GB), u3);
-        var u5 = GetRadioButton(2, nameof(Constants.TB), u4);
-        var u6 = GetRadioButton(2, nameof(Constants.PB), u5);
-
-        range = new()
-        {
-            Anchor = AnchorStyles.Left,
-            DisplayMember = "Name",
-            Dock = DockStyle.Top,
-            DropDownStyle = ComboBoxStyle.DropDownList,
-            ValueMember = "Value",
-            Width = 80,
-        };
-        range.Items.AddRange(new RangeItem[]
-        {
-            new("Hour", Range.Hour),
-            new("Day", Range.Day),
-            new("24 Hours", Range.Hours24),
-            new("Week", Range.Week),
-            new("7 Days", Range.Days7),
-            new("Month", Range.Month),
-            new("30 Days", Range.Days30),
-            new("All", Range.All),
-        });
-        range.SelectionChangeCommitted += (o, e) => UpdateNetworkData();
-        range.SelectedIndex = 0;
-
-        // TODO: move to settings page
-        range.KeyDown += (o, e) =>
-        {
-            if (e.KeyCode == Keys.C)
-            {
-                chart.Series[0].ChartType = SeriesChartType.Column;
-                chart.Series[1].ChartType = SeriesChartType.Column;
-            }
-
-            if (e.KeyCode == Keys.S)
-            {
-                chart.Series[0].ChartType = SeriesChartType.SplineArea;
-                chart.Series[1].ChartType = SeriesChartType.SplineArea;
-            }
-        };
-
-        units = new()
-        {
-            Anchor = AnchorStyles.Left,
-            DisplayMember = "Name",
-            Dock = DockStyle.Top,
-            DropDownStyle = ComboBoxStyle.DropDownList,
-            ValueMember = "Value",
-            Width = 80,
-        };
-        units.Items.AddRange(new UnitItem[]
-        {
-            new(nameof(Constants.B), Constants.B),
-            new(nameof(Constants.KB), Constants.KB),
-            new(nameof(Constants.MB), Constants.MB),
-            new(nameof(Constants.GB), Constants.GB),
-            new(nameof(Constants.TB), Constants.TB),
-            new(nameof(Constants.PB), Constants.PB),
-        });
-        units.SelectionChangeCommitted += (o, e) => UpdateNetworkData();
-        units.SelectedIndex = 2;
-    }
-
-    private void InitialzeLayout()
-    {
-        var layout = new FlowLayoutPanel { Dock = DockStyle.Fill };
-        layout.Controls.Add(chart);
-
-        layout.Controls.Add(new Label { Text = "Range:", AutoSize = true, MinimumSize = new Size(100, 0), Padding = padding });
-        layout.Controls.Add(range);
-        layout.Controls.Add(new Label { Text = "Units:", AutoSize = true, MinimumSize = new Size(100, 0), Padding = padding });
-        layout.Controls.Add(units);
-        layout.SetFlowBreak(units, true);
-
-        layout.Controls.Add(LeftLabel("Total Hour:"));
-        layout.Controls.Add(totalHour);
-        layout.SetFlowBreak(totalHour, true);
-
-        layout.Controls.Add(LeftLabel("Total Day:"));
-        layout.Controls.Add(totalDay);
-        layout.Controls.Add(LeftLabel("Total 24 Hours:"));
-        layout.Controls.Add(total24Hours);
-        layout.SetFlowBreak(total24Hours, true);
-
-        layout.Controls.Add(LeftLabel("Total Week:"));
-        layout.Controls.Add(totalWeek);
-        layout.Controls.Add(LeftLabel("Total 7 Days:"));
-        layout.Controls.Add(total7Days);
-        layout.SetFlowBreak(total7Days, true);
-
-        layout.Controls.Add(LeftLabel("Total Month:"));
-        layout.Controls.Add(totalMonth);
-        layout.Controls.Add(LeftLabel("Total 30 Days:"));
-        layout.Controls.Add(total30Days);
-        layout.SetFlowBreak(total30Days, true);
-
-        Controls.Add(layout);
     }
 
     private void InitializeNetworkMonitor(INetworkMonitor networkMonitor)
@@ -303,33 +225,29 @@ public partial class DetailsForm : Form
 
     private void UpdateTotals()
     {
-        double GetTotal(Range range) => GetLogs(range).Sum(log => log.BytesTotal) / Constants.GB;
-        string GetTotalStr(Range range) => $"{GetTotal(range):0.000} {nameof(Constants.GB)}";
+        double GetTotal(Range range) => GetLogs(range).Sum(log => log.BytesTotal) / (double)Unit.GB;
+        string GetTotalStr(Range range) => $"{GetTotal(range):0.000} {nameof(Unit.GB)}";
+        
+        foreach (var total in totals)
+        {
+            var value = (Label)total.Tag;
 
-        totalHour.Text = GetTotalStr(Range.Hour);
-        totalDay.Text = GetTotalStr(Range.Day);
-        total24Hours.Text = GetTotalStr(Range.Hours24);
-        totalWeek.Text = GetTotalStr(Range.Week);
-        total7Days.Text = GetTotalStr(Range.Days7);
-        totalMonth.Text = GetTotalStr(Range.Month);
-        total30Days.Text = GetTotalStr(Range.Days30);
+            value.Text = GetTotalStr((Range)value.Tag);
+        }
     }
 
     private void UpdateChart()
     {
-        var unit = (UnitItem)units.SelectedItem;
-        var range = ((RangeItem)this.range.SelectedItem).Value;
-
         chart.Series[0].Points.Clear();
         chart.Series[1].Points.Clear();
 
-        if (range < Range.Week) chart.ChartAreas[0].AxisX.LabelStyle.Format = "HH:mm";
+        if (selectedRange < Range.Week) chart.ChartAreas[0].AxisX.LabelStyle.Format = "HH:mm";
         else chart.ChartAreas[0].AxisX.LabelStyle.Format = "";
 
-        foreach (var log in GetLogs(range))
+        foreach (var log in GetLogs(selectedRange))
         {
-            chart.Series["Received"].Points.AddXY(log.Time, log.BytesReceived / unit.Value);
-            chart.Series["Sent"].Points.AddXY(log.Time, log.BytesTotal / unit.Value);
+            chart.Series["Received"].Points.AddXY(log.Time, log.BytesReceived / (double)selectedUnit);
+            chart.Series["Sent"].Points.AddXY(log.Time, log.BytesTotal / (double)selectedUnit);
         }
     }
 
@@ -350,14 +268,13 @@ public partial class DetailsForm : Form
 
         var logs = networkMonitor.Logs
             .Where(log => log.Time >= earlist)
-            .GroupBy(log => log.Time.Ticks / size.Ticks)
+            .GroupBy(log => log.Time.Ticks / TimeSpan.FromMinutes(1).Ticks)//size.Ticks) // TODO: 
             .Select(g => new Log
             {
                 Time = g.First().Time,
                 BytesReceived = g.Sum(log => log.BytesReceived),
                 BytesSent = g.Sum(log => log.BytesSent)
-            })
-            .Skip(1);
+            });
 
         return logs;
     }
