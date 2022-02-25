@@ -18,14 +18,14 @@ internal class ControlCreator
             Tag = value,
         };
         button.FlatAppearance.BorderSize = 0;
-        button.Click += (o, e) =>
+        button.Click += (s, e) =>
         {
             foreach (var b in radioGroups[group])
             {
                 b.BackColor = Properties.Settings.Default.applicationBackgroundColor;
             }
 
-            ((Button)o!).BackColor = Color.Gray;
+            ((Button)s!).BackColor = Color.Gray;
         };
 
         if (!radioGroups.ContainsKey(group))

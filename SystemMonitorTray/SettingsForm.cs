@@ -10,8 +10,8 @@ public partial class SettingsForm : Form
 
         InitializeComponent();
 
-        FormClosing += (o, e) => OnFormClosing();
-        Load += (o, e) => OnLoad();
+        FormClosing += (s, e) => OnFormClosing();
+        Load += (s, e) => OnLoad();
     }
 
     private void OnFormClosing()

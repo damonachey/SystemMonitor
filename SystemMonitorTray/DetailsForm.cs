@@ -25,12 +25,10 @@ public partial class DetailsForm : Form
         InitializeTotals();
         InitializeNetworkMonitor(networkMonitor);
 
-        FormClosing += OnFormClosing;
         Load += OnLoad;
-        Shown += (o, e) => UpdateNetworkData();
     }
 
-    private void OnFormClosing(object? sender, EventArgs e)
+    private void SaveWindowPosition()
     {
         if (Size.Width >= MinimumSize.Width && Size.Height >= MinimumSize.Height)
         {
@@ -48,6 +46,11 @@ public partial class DetailsForm : Form
         {
             SetDesktopLocation(0, 0);
         }
+    
+        FormClosing += (s, e) => SaveWindowPosition();
+        LocationChanged += (s, e) => SaveWindowPosition();
+        Shown += (s, e) => UpdateNetworkData();
+        SizeChanged += (s, e) => SaveWindowPosition();
     }
 
     private void InitializeChartSettingsButtons()
@@ -85,7 +88,7 @@ public partial class DetailsForm : Form
                 range.PerformClick();
             }
 
-            range.Click += (o, e) =>
+            range.Click += (s, e) =>
             {
                 selectedRange = (Range)range.Tag;
                 UpdateChart();
@@ -103,7 +106,7 @@ public partial class DetailsForm : Form
                 unit.PerformClick();
             }
 
-            unit.Click += (o, e) =>
+            unit.Click += (s, e) =>
             {
                 selectedUnit = (Unit)unit.Tag;
                 UpdateChart();

@@ -26,8 +26,8 @@ public partial class Tray : Form
             ContextMenuStrip = GetContextMenu(),
             Visible = true,
         };
-        trayIcon.DoubleClick += (o, e) => new DetailsForm(networkMonitor).Show();
-        Properties.Settings.Default.PropertyChanged += (o, e) => Properties.Settings.Default.Save();
+        trayIcon.DoubleClick += (s, e) => new DetailsForm(networkMonitor).Show();
+        Properties.Settings.Default.PropertyChanged += (s, e) => Properties.Settings.Default.Save();
 
         InitializeOptions();
         UpdateNetworkData();
