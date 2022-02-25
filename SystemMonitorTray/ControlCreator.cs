@@ -29,11 +29,7 @@ internal class ControlCreator
             ((Button)s!).BackColor = Color.Gray;
         };
 
-        if (!radioGroups.ContainsKey(group))
-        {
-            radioGroups.Add(group, new());
-        }
-
+        radioGroups.TryAdd(group, new());
         radioGroups[group].Add(button);
 
         return button;
