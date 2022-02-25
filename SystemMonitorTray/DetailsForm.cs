@@ -243,6 +243,7 @@ public partial class DetailsForm : Form
         var size = GetLogParameters(selectedRange).Size;
         var divisor = size.Ticks switch
         {
+            >= TimeSpan.TicksPerDay * 7 => "week",
             >= TimeSpan.TicksPerDay => "day",
             > TimeSpan.TicksPerHour => $"{size.Hours} hours",
             TimeSpan.TicksPerHour => $"hour",
@@ -250,7 +251,9 @@ public partial class DetailsForm : Form
             _ => $"minute",
         };
 
-        chart.ChartAreas[0].AxisY.Title = $"{Enum.GetName<Unit>(selectedUnit)} / {divisor}";
+        var title = $"{Enum.GetName<Unit>(selectedUnit)} / {divisor}";
+
+        chart.ChartAreas[0].AxisY.Title = title;
 
         if (selectedRange < Range.Week) chart.ChartAreas[0].AxisX.LabelStyle.Format = "HH:mm";
         else chart.ChartAreas[0].AxisX.LabelStyle.Format = "";
@@ -258,7 +261,10 @@ public partial class DetailsForm : Form
         foreach (var log in GetLogs(selectedRange))
         {
             chart.Series["Received"].Points.AddXY(log.Time, log.BytesReceived / (double)selectedUnit);
+            chart.Series["Received"].Points.Last().ToolTip = $"{log.Time:M/d/y HH:mm}\n{log.BytesReceived / (double)selectedUnit:0.00} {title}";
+
             chart.Series["Sent"].Points.AddXY(log.Time, log.BytesTotal / (double)selectedUnit);
+            chart.Series["Sent"].Points.Last().ToolTip = $"{log.Time:M/d/y HH:mm}\n{log.BytesSent / (double)selectedUnit:0.00} {title}";
         }
     }
 
@@ -290,7 +296,7 @@ public partial class DetailsForm : Form
             Range.Days7 => (DateTime.Now.AddDays(-7), TimeSpan.FromHours(1)),
             Range.Month => (DateTime.Now.StartOfMonth(), TimeSpan.FromHours(8)),
             Range.Days30 => (DateTime.Now.AddDays(-30), TimeSpan.FromHours(8)),
-            Range.All => (DateTime.MinValue, TimeSpan.FromDays(7)),
+            Range.All => (DateTime.MinValue, TimeSpan.FromDays(1)),
             _ => throw new ArgumentOutOfRangeException($"Range: {range} not supported"),
         };
     }
