@@ -18,6 +18,7 @@ internal class ControlCreator
             Tag = value,
         };
         button.FlatAppearance.BorderSize = 0;
+        button.FlatAppearance.BorderColor = Color.Gray;
         button.Click += (s, e) =>
         {
             foreach (var b in radioGroups[group])
