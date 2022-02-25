@@ -30,6 +30,7 @@ public partial class Tray : Form
         Properties.Settings.Default.PropertyChanged += (o, e) => Properties.Settings.Default.Save();
 
         InitializeOptions();
+        UpdateNetworkData();
 
         // TODO: remove after debugging
         new DetailsForm(networkMonitor).Show();
@@ -90,17 +91,13 @@ public partial class Tray : Form
         base.OnLoad(e);
     }
 
-    long count = 0;
-
     private void UpdateNetworkData()
     {
-        count++;
-
         var month = networkMonitor.Logs
             .Where(log => log.Time >= DateTime.Now.StartOfMonth())
             .Sum(log => log.BytesTotal) / (double)Unit.GB;
 
-        var limit = 900;
+        var limit = 900; // TODO: move to settings
 
         trayIcon.Icon.Dispose();
         trayIcon.Icon = IconCreator.CreateIcon(month / limit);
