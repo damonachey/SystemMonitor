@@ -155,6 +155,7 @@ public partial class DetailsForm : Form
         ca.AxisY.MajorGrid.LineColor = ForeColor;
         ca.AxisY.MajorTickMark.Enabled = false;
         ca.AxisY.MajorTickMark.LineColor = ForeColor;
+        ca.AxisY.TitleForeColor = ForeColor;
         chart.ChartAreas.Add(ca);
 
         var series = new[] {
@@ -239,6 +240,18 @@ public partial class DetailsForm : Form
         chart.Series[0].Points.Clear();
         chart.Series[1].Points.Clear();
 
+        var size = GetLogParameters(selectedRange).Size;
+        var divisor = size.Ticks switch
+        {
+            >= TimeSpan.TicksPerDay => "day",
+            > TimeSpan.TicksPerHour => $"{size.Hours} hours",
+            TimeSpan.TicksPerHour => $"hour",
+            > TimeSpan.TicksPerMinute => $"{size.Minutes} minutes",
+            _ => $"minute",
+        };
+
+        chart.ChartAreas[0].AxisY.Title = $"{Enum.GetName<Unit>(selectedUnit)} / {divisor}";
+
         if (selectedRange < Range.Week) chart.ChartAreas[0].AxisX.LabelStyle.Format = "HH:mm";
         else chart.ChartAreas[0].AxisX.LabelStyle.Format = "";
 
@@ -251,7 +264,24 @@ public partial class DetailsForm : Form
 
     private IEnumerable<Log> GetLogs(Range range)
     {
-        var (earlist, size) = range switch
+        var (earliest, size) = GetLogParameters(range);
+
+        var logs = networkMonitor.Logs
+            .Where(log => log.Time >= earliest)
+            .GroupBy(log => log.Time.Ticks / size.Ticks)
+            .Select(g => new Log
+            {
+                Time = g.First().Time,
+                BytesReceived = g.Sum(log => log.BytesReceived),
+                BytesSent = g.Sum(log => log.BytesSent)
+            });
+
+        return logs;
+    }
+
+    private static (DateTime Earlist, TimeSpan Size) GetLogParameters(Range range)
+    {
+        return range switch
         {
             Range.Hour => (DateTime.Now.AddHours(-1), TimeSpan.FromMinutes(1)),
             Range.Day => (DateTime.Today, TimeSpan.FromMinutes(15)),
@@ -263,17 +293,5 @@ public partial class DetailsForm : Form
             Range.All => (DateTime.MinValue, TimeSpan.FromDays(7)),
             _ => throw new ArgumentOutOfRangeException($"Range: {range} not supported"),
         };
-
-        var logs = networkMonitor.Logs
-            .Where(log => log.Time >= earlist)
-            .GroupBy(log => log.Time.Ticks / size.Ticks)
-            .Select(g => new Log
-            {
-                Time = g.First().Time,
-                BytesReceived = g.Sum(log => log.BytesReceived),
-                BytesSent = g.Sum(log => log.BytesSent)
-            });
-
-        return logs;
     }
 }
