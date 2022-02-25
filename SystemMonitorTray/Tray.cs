@@ -22,7 +22,7 @@ public partial class Tray : Form
         trayIcon = new()
         {
             Text = "System Monitor",
-            Icon = IconHelper.GenerateIcon(0),
+            Icon = IconHelper.GenerateIcon(-1),
             ContextMenuStrip = GetContextMenu(),
             Visible = true,
         };

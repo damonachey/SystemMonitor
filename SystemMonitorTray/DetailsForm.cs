@@ -8,7 +8,7 @@ public partial class DetailsForm : Form
 {
     private static readonly Size minimumSize = new(400, 300);
     private static readonly Padding padding = new(0, 6, 0, 6);
-    private static readonly SeriesChartType chartType = SeriesChartType.SplineArea;
+    private static readonly SeriesChartType chartType = SeriesChartType.Area;
 
     private INetworkMonitor networkMonitor = default!;
     private Chart chart = default!;
@@ -82,7 +82,6 @@ public partial class DetailsForm : Form
             Size = new Size(this.ClientSize.Width, this.ClientSize.Height - 150),
             TabStop = false,
         };
-        chart.Titles.Add("Usage").ForeColor = ForeColor;
 
         var legend = new Legend
         {
@@ -134,8 +133,61 @@ public partial class DetailsForm : Form
     private record class RangeItem(string Name, Range Value);
     private record class UnitItem(string Name, double Value);
 
+    private readonly Dictionary<int, List<Button>> radioGroups = new();
+
     private void InitializeChartConfiguration()
     {
+        Button GetRadioButton(int group, string text, Button? b1 = null, Point? location = null)
+        {
+            var b = new Button()
+            {
+                Text = text,
+                Font = new Font(Font, FontStyle.Bold),
+                Location = location ?? new(b1!.Location.X + b1.Size.Width, b1.Location.Y),
+                Size = new Size(40, 25),
+                FlatStyle = FlatStyle.Flat,
+                TabStop = false,
+            };
+            b.FlatAppearance.BorderSize = 0;
+            b.Click += (o, e) =>
+            {
+                var g = group;
+
+                foreach (var _b in radioGroups[g])
+                {
+                    _b.BackColor = BackColor;
+                }
+
+                ((Button)o!).BackColor = Color.Gray;
+            };
+
+            if (!radioGroups.ContainsKey(group))
+            {
+                radioGroups.Add(group, new());
+                b.PerformClick();
+            }
+
+            radioGroups[group].Add(b);
+            Controls.Add(b);
+
+            return b;
+        }
+
+        var r1 = GetRadioButton(1, "1h", location: new(80, 10));
+        var r2 = GetRadioButton(1, "1d", r1);
+        var r3 = GetRadioButton(1, "24h", r2);
+        var r4 = GetRadioButton(1, "1w", r3);
+        var r5 = GetRadioButton(1, "7d", r4);
+        var r6 = GetRadioButton(1, "1M", r5);
+        var r7 = GetRadioButton(1, "1Y", r6);
+
+        var u1 = GetRadioButton(2, nameof(Constants.B), location: new(Width - 4 * 40, 10));
+        var u2 = GetRadioButton(2, nameof(Constants.KB), u1);
+        var u3 = GetRadioButton(2, nameof(Constants.MB), u2);
+        var u4 = GetRadioButton(2, nameof(Constants.GB), u3);
+        var u5 = GetRadioButton(2, nameof(Constants.TB), u4);
+        var u6 = GetRadioButton(2, nameof(Constants.PB), u5);
+
         range = new()
         {
             Anchor = AnchorStyles.Left,
@@ -186,7 +238,7 @@ public partial class DetailsForm : Form
         };
         units.Items.AddRange(new UnitItem[]
         {
-            new(nameof(Constants.Bytes), Constants.Bytes),
+            new(nameof(Constants.B), Constants.B),
             new(nameof(Constants.KB), Constants.KB),
             new(nameof(Constants.MB), Constants.MB),
             new(nameof(Constants.GB), Constants.GB),

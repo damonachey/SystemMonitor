@@ -10,8 +10,15 @@ internal class IconHelper
         using var g = Graphics.FromImage(bmp);
         g.SmoothingMode = SmoothingMode.AntiAlias;
 
-        g.FillEllipse(Brushes.Green, 0, 0, bmp.Width, bmp.Height);
-        g.FillPie(Brushes.Red, 0, 0, bmp.Width, bmp.Height, 270, (int)(360 * percentage));
+        if (percentage < 0)
+        {
+            g.FillEllipse(Brushes.Gray, 0, 0, bmp.Width, bmp.Height);
+        }
+        else
+        {
+            g.FillEllipse(Brushes.Green, 0, 0, bmp.Width, bmp.Height);
+            g.FillPie(Brushes.Red, 0, 0, bmp.Width, bmp.Height, 270, (int)(360 * percentage));
+        }
 
         return Icon.FromHandle(bmp.GetHicon());
     }
