@@ -290,12 +290,12 @@ public partial class DetailsForm : Form
         return range switch
         {
             Range.Hour => (DateTime.Now.AddHours(-1), TimeSpan.FromMinutes(1)),
-            Range.Day => (DateTime.Today, TimeSpan.FromMinutes(15)),
-            Range.Hours24 => (DateTime.Now.AddHours(-24), TimeSpan.FromMinutes(15)),
+            Range.Day => (DateTime.Today, TimeSpan.FromMinutes(60)),
+            Range.Hours24 => (DateTime.Now.AddHours(-24), TimeSpan.FromMinutes(60)),
             Range.Week => (DateTime.Now.StartOfWeek(), TimeSpan.FromHours(1)),
             Range.Days7 => (DateTime.Now.AddDays(-7), TimeSpan.FromHours(1)),
-            Range.Month => (DateTime.Now.StartOfMonth(), TimeSpan.FromHours(8)),
-            Range.Days30 => (DateTime.Now.AddDays(-30), TimeSpan.FromHours(8)),
+            Range.Month => (DateTime.Now.StartOfMonth(), TimeSpan.FromHours(24)),
+            Range.Days30 => (DateTime.Now.AddDays(-30), TimeSpan.FromHours(24)),
             Range.All => (DateTime.MinValue, TimeSpan.FromDays(1)),
             _ => throw new ArgumentOutOfRangeException($"Range: {range} not supported"),
         };
