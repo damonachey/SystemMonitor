@@ -73,7 +73,10 @@ public class NetworkMonitor : INetworkMonitor
         var lastStart = Uptime.LastStart().RoundDown(pollInterval);
         var last = Logs.LastOrDefault() ?? new();
 
-        if (last.Time < lastStart) last = new() { Time = lastStart };
+        if (last.Time <= lastStart)
+        {
+            last = new() { Time = lastStart };
+        }
 
         var current = GetCurrentLog(pollInterval);
         var intervals = (int)((current.Time - last.Time) / pollInterval);
