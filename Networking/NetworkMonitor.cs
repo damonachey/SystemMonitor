@@ -142,10 +142,16 @@ public class NetworkMonitor : INetworkMonitor
 
             if (diffBytesReceived != Logs[i].BytesReceived || diffBytesSent != Logs[i].BytesSent)
             {
+                // probably a restart, ignore
+                if (diffBytesReceived < 0 && diffBytesSent < 0)
+                    continue;
+
+                var prevStr = System.Text.Json.JsonSerializer.Serialize(Logs[i - 1]);
                 var logStr = System.Text.Json.JsonSerializer.Serialize(Logs[i]);
 
+                System.Diagnostics.Debug.WriteLine($"          Previous: {prevStr}");
                 System.Diagnostics.Debug.WriteLine($"WARNING Math error: {logStr}");
-         
+             
                 System.Diagnostics.Debugger.Break();
             }
         }
