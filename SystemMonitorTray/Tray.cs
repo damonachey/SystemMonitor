@@ -117,7 +117,7 @@ public partial class Tray : Form
 
     private void OnSettings(object? sender, EventArgs e)
     {
-        new SettingsForm(networkMonitor).Show();
+        new SettingsForm(networkMonitor).ShowDialog();
     }
 
     private void OnSound(object? sender, EventArgs e)
