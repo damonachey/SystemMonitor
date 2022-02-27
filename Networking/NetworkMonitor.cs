@@ -7,14 +7,13 @@ public class NetworkMonitor : INetworkMonitor
     public delegate void UpdateHandler();
     public event UpdateHandler? OnUpdate;
 
+    public string LogFile { get; } = default!;
+    public TimeSpan PollInterval { get; } = TimeSpan.FromSeconds(60);
     public List<Log> Logs { get; internal set; } = new();
-
-    private readonly string logFile = default!;
-    private readonly TimeSpan pollInterval = TimeSpan.FromSeconds(60);
 
     public NetworkMonitor(string logPath)
     {
-        logFile = GetLogFilename(logPath);
+        LogFile = GetLogFilename(logPath);
     }
 
     public async Task Start()
@@ -25,18 +24,18 @@ public class NetworkMonitor : INetworkMonitor
         }
 
         InitializeLogs();
-        await Delay.Next(pollInterval);
+        await Delay.Next(PollInterval);
 
         while (true)
         {
-            var log = GetCurrentLog(pollInterval);
+            var log = GetCurrentLog(PollInterval);
 
             Logs.Add(log);
-            File.AppendAllLines(logFile, new[] { log.ToString() });
+            File.AppendAllLines(LogFile, new[] { log.ToString() });
 
             _ = Task.Run(() => OnUpdate?.Invoke());
 
-            await Delay.Next(pollInterval);
+            await Delay.Next(PollInterval);
         }
     }
 
@@ -60,9 +59,9 @@ public class NetworkMonitor : INetworkMonitor
 
     private void LoadNetworkMonitorLogs()
     {
-        if (File.Exists(logFile))
+        if (File.Exists(LogFile))
         {
-            Logs = File.ReadLines(logFile)
+            Logs = File.ReadLines(LogFile)
                 .Select(line => Log.Parse(line))
                 .ToList();
         }
@@ -70,7 +69,7 @@ public class NetworkMonitor : INetworkMonitor
 
     private void PadLogsForMissingTime()
     {
-        var lastStart = Uptime.LastStart().RoundDown(pollInterval);
+        var lastStart = Uptime.LastStart().RoundDown(PollInterval);
         var last = Logs.LastOrDefault() ?? new();
 
         if (last.Time <= lastStart)
@@ -78,8 +77,8 @@ public class NetworkMonitor : INetworkMonitor
             last = new() { Time = lastStart };
         }
 
-        var current = GetCurrentLog(pollInterval);
-        var intervals = (int)((current.Time - last.Time) / pollInterval);
+        var current = GetCurrentLog(PollInterval);
+        var intervals = (int)((current.Time - last.Time) / PollInterval);
 
         if (intervals == 0)
         {
@@ -90,7 +89,7 @@ public class NetworkMonitor : INetworkMonitor
         var deltaBytesReceived = (current.CumulativeBytesReceived - last.CumulativeBytesReceived) / intervals;
         var deltaBytesSent = (current.CumulativeBytesSent - last.CumulativeBytesSent) / intervals;
 
-        for (var time = last.Time + pollInterval; time <= current.Time; time += pollInterval)
+        for (var time = last.Time + PollInterval; time <= current.Time; time += PollInterval)
         {
             Logs.Add(last = new Log
             {
@@ -113,7 +112,7 @@ public class NetworkMonitor : INetworkMonitor
             .ToList();
 
         // write clean logs file
-        File.WriteAllLines(logFile, Logs.Select(log => log.ToString()));
+        File.WriteAllLines(LogFile, Logs.Select(log => log.ToString()));
     }
 
     private void DebugValidateLogs()
