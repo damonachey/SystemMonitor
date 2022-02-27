@@ -31,15 +31,6 @@ public partial class DetailsForm : Form
         Load += OnLoad;
     }
 
-    private void SaveWindowPosition()
-    {
-        if (Size.Width >= MinimumSize.Width && Size.Height >= MinimumSize.Height)
-        {
-            Properties.Settings.Default.detailsFormLocation = Location;
-            Properties.Settings.Default.detailsFormSize = Size;
-        }
-    }
-
     private void OnLoad(object? sender, EventArgs e)
     {
         Location = Properties.Settings.Default.detailsFormLocation;
@@ -54,6 +45,15 @@ public partial class DetailsForm : Form
         LocationChanged += (s, e) => SaveWindowPosition();
         Shown += (s, e) => UpdateNetworkData();
         SizeChanged += (s, e) => SaveWindowPosition();
+    }
+
+    private void SaveWindowPosition()
+    {
+        if (Size.Width >= MinimumSize.Width && Size.Height >= MinimumSize.Height)
+        {
+            Properties.Settings.Default.detailsFormLocation = Location;
+            Properties.Settings.Default.detailsFormSize = Size;
+        }
     }
 
     private void InitializeChartSettingsButtons()

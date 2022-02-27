@@ -6,11 +6,11 @@ public partial class SettingsForm : Form
     {
         BackColor = Properties.Settings.Default.applicationBackgroundColor;
         ForeColor = Properties.Settings.Default.applicationForegroundColor;
+        MinimumSize = new Size(600, 300);
         StartPosition = FormStartPosition.Manual;
 
         InitializeComponent();
 
-        FormClosing += (s, e) => OnFormClosing();
         Load += (s, e) => OnLoad();
     }
 
@@ -24,5 +24,18 @@ public partial class SettingsForm : Form
     {
         Location = Properties.Settings.Default.settingsFormLocation;
         Size = Properties.Settings.Default.settingsFormSize;
+
+        FormClosing += (s, e) => OnFormClosing();
+        LocationChanged += (s, e) => SaveWindowPosition();
+        SizeChanged += (s, e) => SaveWindowPosition();
+    }
+
+    private void SaveWindowPosition()
+    {
+        if (Size.Width >= MinimumSize.Width && Size.Height >= MinimumSize.Height)
+        {
+            Properties.Settings.Default.settingsFormLocation = Location;
+            Properties.Settings.Default.settingsFormSize = Size;
+        }
     }
 }
