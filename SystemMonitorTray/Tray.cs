@@ -34,6 +34,7 @@ public partial class Tray : Form
 
         // TODO: remove after debugging
         new DetailsForm(networkMonitor).Show();
+        new SettingsForm(networkMonitor).ShowDialog();
     }
 
     private void InitializeOptions()
@@ -116,7 +117,7 @@ public partial class Tray : Form
 
     private void OnSettings(object? sender, EventArgs e)
     {
-        new SettingsForm().Show();
+        new SettingsForm(networkMonitor).Show();
     }
 
     private void OnSound(object? sender, EventArgs e)
