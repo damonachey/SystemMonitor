@@ -7,13 +7,13 @@ public class NetworkMonitor : INetworkMonitor
     public delegate void UpdateHandler();
     public event UpdateHandler? OnUpdate;
 
-    public string LogFile { get; } = default!;
-    public TimeSpan PollInterval { get; } = TimeSpan.FromSeconds(60);
+    public string LogFileName { get; } = default!;
+    public TimeSpan PollingInterval { get; } = TimeSpan.FromSeconds(60);
     public List<Log> Logs { get; internal set; } = new();
 
     public NetworkMonitor(string logPath)
     {
-        LogFile = GetLogFilename(logPath);
+        LogFileName = GetLogFileName(logPath);
     }
 
     public async Task Start()
@@ -24,22 +24,22 @@ public class NetworkMonitor : INetworkMonitor
         }
 
         InitializeLogs();
-        await Delay.Next(PollInterval);
+        await Delay.Next(PollingInterval);
 
         while (true)
         {
-            var log = GetCurrentLog(PollInterval);
+            var log = GetCurrentLog(PollingInterval);
 
             Logs.Add(log);
-            File.AppendAllLines(LogFile, new[] { log.ToString() });
+            File.AppendAllLines(LogFileName, new[] { log.ToString() });
 
             _ = Task.Run(() => OnUpdate?.Invoke());
 
-            await Delay.Next(PollInterval);
+            await Delay.Next(PollingInterval);
         }
     }
 
-    private static string GetLogFilename(string logPath)
+    private static string GetLogFileName(string logPath)
     {
         var networkId = NetworkInterface
             .GetAllNetworkInterfaces()
@@ -59,9 +59,9 @@ public class NetworkMonitor : INetworkMonitor
 
     private void LoadNetworkMonitorLogs()
     {
-        if (File.Exists(LogFile))
+        if (File.Exists(LogFileName))
         {
-            Logs = File.ReadLines(LogFile)
+            Logs = File.ReadLines(LogFileName)
                 .Select(line => Log.Parse(line))
                 .ToList();
         }
@@ -69,7 +69,7 @@ public class NetworkMonitor : INetworkMonitor
 
     private void PadLogsForMissingTime()
     {
-        var lastStart = Uptime.LastStart().RoundDown(PollInterval);
+        var lastStart = Uptime.LastStart().RoundDown(PollingInterval);
         var last = Logs.LastOrDefault() ?? new();
 
         if (last.Time <= lastStart)
@@ -77,8 +77,8 @@ public class NetworkMonitor : INetworkMonitor
             last = new() { Time = lastStart };
         }
 
-        var current = GetCurrentLog(PollInterval);
-        var intervals = (int)((current.Time - last.Time) / PollInterval);
+        var current = GetCurrentLog(PollingInterval);
+        var intervals = (int)((current.Time - last.Time) / PollingInterval);
 
         if (intervals == 0)
         {
@@ -89,7 +89,7 @@ public class NetworkMonitor : INetworkMonitor
         var deltaBytesReceived = (current.CumulativeBytesReceived - last.CumulativeBytesReceived) / intervals;
         var deltaBytesSent = (current.CumulativeBytesSent - last.CumulativeBytesSent) / intervals;
 
-        for (var time = last.Time + PollInterval; time <= current.Time; time += PollInterval)
+        for (var time = last.Time + PollingInterval; time <= current.Time; time += PollingInterval)
         {
             Logs.Add(last = new Log
             {
@@ -112,7 +112,7 @@ public class NetworkMonitor : INetworkMonitor
             .ToList();
 
         // write clean logs file
-        File.WriteAllLines(LogFile, Logs.Select(log => log.ToString()));
+        File.WriteAllLines(LogFileName, Logs.Select(log => log.ToString()));
     }
 
     private void DebugValidateLogs()

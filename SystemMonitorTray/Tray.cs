@@ -37,28 +37,6 @@ public partial class Tray : Form
         new SettingsForm(networkMonitor).ShowDialog();
     }
 
-    private void InitializeOptions()
-    {
-        var key = Registry.CurrentUser.CreateSubKey(startWithWindowsKey);
-        Properties.Settings.Default.applicationStartWithWindows = key.GetValue(startWithWindowsName) != null;
-
-        foreach (object item in trayIcon.ContextMenuStrip.Items)
-        {
-            if (item is ToolStripMenuItem menuItem)
-            {
-                if (menuItem.Text == "Start With Windows")
-                {
-                    menuItem.Checked = Properties.Settings.Default.applicationStartWithWindows;
-                }
-
-                if (menuItem.Text == "Sound")
-                {
-                    menuItem.Checked = Properties.Settings.Default.applicationSound;
-                }
-            }
-        }
-    }
-
     private ContextMenuStrip GetContextMenu()
     {
         var contextMenuStrip = new ContextMenuStrip();
@@ -84,12 +62,26 @@ public partial class Tray : Form
         return contextMenuStrip;
     }
 
-    protected override void OnLoad(EventArgs e)
+    private void InitializeOptions()
     {
-        Visible = false; // Hide form window.
-        ShowInTaskbar = false; // Remove from task bar.
+        var key = Registry.CurrentUser.CreateSubKey(startWithWindowsKey);
+        Properties.Settings.Default.applicationStartWithWindows = key.GetValue(startWithWindowsName) != null;
 
-        base.OnLoad(e);
+        foreach (object item in trayIcon.ContextMenuStrip.Items)
+        {
+            if (item is ToolStripMenuItem menuItem)
+            {
+                if (menuItem.Text == "Start With Windows")
+                {
+                    menuItem.Checked = Properties.Settings.Default.applicationStartWithWindows;
+                }
+
+                if (menuItem.Text == "Sound")
+                {
+                    menuItem.Checked = Properties.Settings.Default.applicationSound;
+                }
+            }
+        }
     }
 
     private void UpdateNetworkData()
@@ -110,6 +102,14 @@ public partial class Tray : Form
         //}
     }
 
+    protected override void OnLoad(EventArgs e)
+    {
+        Visible = false; // Hide form window.
+        ShowInTaskbar = false; // Remove from task bar.
+
+        base.OnLoad(e);
+    }
+
     private void OnDetails(object? sender, EventArgs e)
     {
         new DetailsForm(networkMonitor).Show();
@@ -117,7 +117,10 @@ public partial class Tray : Form
 
     private void OnSettings(object? sender, EventArgs e)
     {
-        new SettingsForm(networkMonitor).ShowDialog();
+        var settingsForm = new SettingsForm(networkMonitor);
+
+        settingsForm.FormClosed += (s, e) => InitializeOptions();
+        settingsForm.ShowDialog();
     }
 
     private void OnSound(object? sender, EventArgs e)

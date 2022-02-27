@@ -6,8 +6,8 @@ public interface INetworkMonitor
 {
     event UpdateHandler? OnUpdate;
 
-    string LogFile { get; }
-    TimeSpan PollInterval { get; }
+    string LogFileName { get; }
+    TimeSpan PollingInterval { get; }
     List<Log> Logs { get; }
 
     Task Start();
