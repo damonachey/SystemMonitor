@@ -33,8 +33,8 @@ public partial class Tray : Form
         UpdateNetworkData();
 
         // TODO: remove after debugging
-        new DetailsForm(networkMonitor).Show();
-        new SettingsForm(networkMonitor).ShowDialog();
+        OnDetails(null, null);
+        OnSettings(null, null);
     }
 
     private ContextMenuStrip GetContextMenu()

@@ -1,4 +1,5 @@
 ﻿using Networking;
+
 using System.Configuration;
 using System.Diagnostics;
 
@@ -49,142 +50,181 @@ public partial class SettingsForm : Form
 
     private void InitializeSettingsControls()
     {
-        var width = 120;
-        var valueOffset = new Size(width, 0);
-
-        var alertEnabledLabel = new Label
+        var label = new Control
         {
             Location = new(10, 10),
+            Width = 120,
+        };
+        var value = new Control
+        {
+            Location = new(120, 10),
+        };
+
+        label = new Label
+        {
+            Location = label.Location + new Size(0, label.Height),
             Text = "Alerts Enabled:",
+            Width = label.Width,
         };
-        Controls.Add(alertEnabledLabel);
+        Controls.Add(label);
 
-        var alertEnabledCheckBox = new CheckBox
+        value = new CheckBox
         {
-
+            CheckAlign = ContentAlignment.TopLeft,
+            //Checked = Properties.Settings.Default.applicationAlert,
+            Location = label.Location + new Size(label.Width, 0),
         };
-        Controls.Add(alertEnabledCheckBox);
+        Controls.Add(value);
 
-        var alertValueLabel = new Label
+        //  ***********************************************************************
+        label = new Label
         {
-
+            Location = label.Location + new Size(0, label.Height),
+            Text = "Alert Value:",
+            Width = label.Width,
         };
-        Controls.Add(alertValueLabel);
+        Controls.Add(label);
 
-        var alertValueTextBox = new TextBox
+        value = new TextBox
         {
-
+            Location = label.Location + new Size(label.Width, 0),
+            Text = "none",
         };
-        Controls.Add(alertValueTextBox);
+        Controls.Add(value);
 
-        var alertValueUnitListBox = new ListBox
+        value = new ListBox
         {
-
+            Location = label.Location + new Size(label.Width * 2, 0),
+            Text = "MB",
         };
-        Controls.Add(alertValueUnitListBox);
+        Controls.Add(value);
 
-        var graphStyleLabel = new Label
+        //  ***********************************************************************
+        label = new Label
         {
-            Location = 
+            Location = label.Location + new Size(0, label.Height),
+            Text = "Graph Style:",
+            Width = label.Width,
         };
-        Controls.Add(graphStyleLabel);
+        Controls.Add(label);
 
-        var graphStyleListBox = new ListBox
+        value = new ListBox
         {
-            Location = 
-        }
+            Location = value.Location + new Size(label.Width, 0),
+            Text = "None",
+        };
+        Controls.Add(value);
 
-        var soundLabel = new Label
+        //  ***********************************************************************
+        label = new Label
         {
-            Location = new(10, 10),
+            Location = label.Location + new Size(0, label.Height),
             Text = "Sound Enabled:",
-            Width = width,
+            Width = label.Width,
         };
-        Controls.Add(soundLabel);
+        Controls.Add(label);
 
-        var soundCheckBox = new CheckBox
+        value = new CheckBox
         {
             CheckAlign = ContentAlignment.TopLeft,
             Checked = Properties.Settings.Default.applicationSound,
-            Location = soundLabel.Location + valueOffset,
-            Text = "",
+            Location = label.Location + new Size(label.Width, 0),
         };
+        var soundCheckBox = (CheckBox)value;
         soundCheckBox.CheckedChanged += (s, e) => Properties.Settings.Default.applicationSound = soundCheckBox.Checked;
-        Controls.Add(soundCheckBox);
+        Controls.Add(value);
 
-        var startWithWindowsLabel = new Label
+        //  ***********************************************************************
+        label = new Label
         {
-            Location = soundLabel.Location + new Size(0, soundLabel.Height),
+            Location = label.Location + new Size(0, label.Height),
             Text = "Start With Windows:",
-            Width = width,
+            Width = label.Width,
         };
-        Controls.Add(startWithWindowsLabel);
+        Controls.Add(label);
 
-        var startWithWindowsCheckBox = new CheckBox
+        value = new CheckBox
         {
             CheckAlign = ContentAlignment.TopLeft,
             Checked = Properties.Settings.Default.applicationStartWithWindows,
-            Location = startWithWindowsLabel.Location + valueOffset,
-            Text = "",
+            Location = label.Location + new Size(label.Width, 0),
         };
+        var startWithWindowsCheckBox = (CheckBox)value;
         startWithWindowsCheckBox.CheckedChanged += (s, e) => Properties.Settings.Default.applicationStartWithWindows = startWithWindowsCheckBox.Checked;
-        Controls.Add(startWithWindowsCheckBox);
+        // TODO: requires more to flip this value
+        Controls.Add(value);
 
-        var pollingIntervalLabel = new Label
+        //  ***********************************************************************
+        label = new Label
         {
-            Location = startWithWindowsLabel.Location + new Size(0, startWithWindowsLabel.Size.Height),
+            Location = label.Location + new Size(0, label.Height),
             Text = "Polling Interval:",
-            Width = width,
+            Width = label.Width,
         };
-        Controls.Add(pollingIntervalLabel);
+        Controls.Add(label);
 
-        var pollingIntervalValueLabel = new Label
+        value = new Label
         {
-            Location = pollingIntervalLabel.Location + valueOffset,
-            Text = $"{networkMonitor.PollingInterval.Minutes} minutes",
+            Location = label.Location + new Size(label.Width, 0),
+            Text = $"{networkMonitor.PollingInterval.Minutes} minutes (not editable)",
+            Width = label.Width * 2,
         };
-        Controls.Add(pollingIntervalValueLabel);
+        Controls.Add(value);
 
-        var settingsLabel = new Label
+        //  ***********************************************************************
+        label = new Label
         {
-            Location = pollingIntervalLabel.Location + new Size(0, pollingIntervalLabel.Size.Height),
+            Location = label.Location + new Size(0, label.Height * 2),
+            Text = "!!! Below files are listed for debugging and should not be edited by hand !!!",
+            Width = label.Width * 4,
+        };
+        Controls.Add(label);
+
+        //  ***********************************************************************
+        label = new Label
+        {
+            Location = label.Location + new Size(0, label.Height),
             Text = "Settings File:",
-            Width = width,
+            Width = label.Width / 4,
         };
-        Controls.Add(settingsLabel);
+        Controls.Add(label);
 
         var settingsFile = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoamingAndLocal).FilePath;
-        var settingsLink = new LinkLabel
+        value = new LinkLabel
         {
-            Location = settingsLabel.Location + valueOffset,
+            LinkColor = Color.White,
+            Location = label.Location + new Size(label.Width, 0),
             Text = Path.GetFileName(settingsFile),
         };
-        settingsLink.LinkClicked += (s, e) => Process.Start(new ProcessStartInfo
+        var settingsFileLink = (LinkLabel)value;
+        ((LinkLabel)value).LinkClicked += (s, e) => Process.Start(new ProcessStartInfo
         {
             FileName = settingsFile,
             UseShellExecute = true,
         });
-        Controls.Add(settingsLink);
+        Controls.Add(value);
 
-        var logsLabel = new Label
+        //  ***********************************************************************
+        label = new Label
         {
-            Location = settingsLabel.Location + new Size(0, settingsLabel.Size.Height),
+            Location = label.Location + new Size(0, label.Height),
             Text = "Logs File:",
-            Width = width,
+            Width = label.Width,
         };
-        Controls.Add(logsLabel);
+        Controls.Add(label);
 
-        var logsLink = new LinkLabel
+        value = new LinkLabel
         {
             AutoSize = true,
-            Location = logsLabel.Location + valueOffset,
+            LinkColor = Color.White,
+            Location = label.Location + new Size(label.Width, 0),
             Text = Path.GetFileName(networkMonitor.LogFileName),
         };
-        logsLink.LinkClicked += (s, e) => Process.Start(new ProcessStartInfo
+        ((LinkLabel)value).LinkClicked += (s, e) => Process.Start(new ProcessStartInfo
         {
             FileName = networkMonitor.LogFileName,
             UseShellExecute = true,
         });
-        Controls.Add(logsLink);
+        Controls.Add(value);
     }
 }

@@ -194,7 +194,7 @@ public partial class DetailsForm : Form
         {
             var description = new Label { Text = totals[i].Description };
             description.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            description.Location = new Point(i / 2 * 200 + 10, ClientSize.Height - (i % 2) * description.Height - 30);
+            description.Location = new Point(i / 2 * 200 + 10, ClientSize.Height - (1 - i % 2) * description.Height - 30);
             description.Width = 80;
             Controls.Add(description);
 
