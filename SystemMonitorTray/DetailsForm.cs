@@ -19,8 +19,8 @@ public partial class DetailsForm : Form
         MinimumSize = new(600, 300);
         StartPosition = FormStartPosition.Manual;
 
-        selectedRange = (Range)Properties.Settings.Default.detailsSelectedRange;
-        selectedUnit = (Unit)Properties.Settings.Default.detailsSelectedUnit;
+        selectedRange = Enum.Parse<Range>(Properties.Settings.Default.detailsFormSelectedRange);
+        selectedUnit = Enum.Parse<Unit>(Properties.Settings.Default.detailsFormSelectedUnit);
 
         InitializeComponent();
         InitializeChartSettingsButtons();
@@ -84,7 +84,7 @@ public partial class DetailsForm : Form
             range.Click += (s, e) =>
             {
                 selectedRange = (Range)range.Tag;
-                Properties.Settings.Default.detailsSelectedRange = (int)selectedRange;
+                Properties.Settings.Default.detailsFormSelectedRange = Enum.GetName(selectedRange);
                 UpdateChart();
             };
         }
@@ -115,7 +115,7 @@ public partial class DetailsForm : Form
             unit.Click += (s, e) =>
             {
                 selectedUnit = (Unit)unit.Tag;
-                Properties.Settings.Default.detailsSelectedUnit = (long)selectedUnit;
+                Properties.Settings.Default.detailsFormSelectedUnit = Enum.GetName(selectedUnit);
                 UpdateChart();
             };
         }
@@ -165,7 +165,7 @@ public partial class DetailsForm : Form
 
         foreach (var s in series)
         {
-            s.ChartType = SeriesChartType.SplineArea;
+            s.ChartType = Enum.Parse<SeriesChartType>(Properties.Settings.Default.detailsFormGraphStyle);
             s.CustomProperties = "DrawSideBySide=False";
             s.IsVisibleInLegend = true;
             s.LabelForeColor = ForeColor;

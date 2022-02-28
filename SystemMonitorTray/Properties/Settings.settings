@@ -26,17 +26,29 @@
     <Setting Name="detailsFormSentChartColor" Type="System.Drawing.Color" Scope="User">
       <Value Profile="(Default)">252, 180, 65</Value>
     </Setting>
+    <Setting Name="detailsFormSelectedRange" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Days7</Value>
+    </Setting>
+    <Setting Name="detailsFormSelectedUnit" Type="System.String" Scope="User">
+      <Value Profile="(Default)">MB</Value>
+    </Setting>
+    <Setting Name="detailsFormGraphStyle" Type="System.String" Scope="User">
+      <Value Profile="(Default)">SplineArea</Value>
+    </Setting>
     <Setting Name="settingsFormLocation" Type="System.Drawing.Point" Scope="User">
       <Value Profile="(Default)">200, 200</Value>
     </Setting>
     <Setting Name="settingsFormSize" Type="System.Drawing.Size" Scope="User">
-      <Value Profile="(Default)">800, 600</Value>
+      <Value Profile="(Default)">600, 300</Value>
     </Setting>
-    <Setting Name="detailsSelectedRange" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">0</Value>
+    <Setting Name="settingsFormAlertUnit" Type="System.String" Scope="User">
+      <Value Profile="(Default)">GB</Value>
     </Setting>
-    <Setting Name="detailsSelectedUnit" Type="System.Int64" Scope="User">
-      <Value Profile="(Default)">1048576</Value>
+    <Setting Name="settingsFormAlertValue" Type="System.Int64" Scope="User">
+      <Value Profile="(Default)">40</Value>
+    </Setting>
+    <Setting Name="settingsFormAlertRange" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Day</Value>
     </Setting>
   </Settings>
 </SettingsFile>

@@ -60,23 +60,7 @@ public partial class SettingsForm : Form
             Location = new(120, 10),
         };
 
-        label = new Label
-        {
-            Location = label.Location + new Size(0, label.Height),
-            Text = "Alerts Enabled:",
-            Width = label.Width,
-        };
-        Controls.Add(label);
-
-        value = new CheckBox
-        {
-            CheckAlign = ContentAlignment.TopLeft,
-            //Checked = Properties.Settings.Default.applicationAlert,
-            Location = label.Location + new Size(label.Width, 0),
-        };
-        Controls.Add(value);
-
-        //  ***********************************************************************
+        // ***********************************************************************
         label = new Label
         {
             Location = label.Location + new Size(0, label.Height),
@@ -85,21 +69,55 @@ public partial class SettingsForm : Form
         };
         Controls.Add(label);
 
-        value = new TextBox
+        value = new NumericUpDown
         {
             Location = label.Location + new Size(label.Width, 0),
-            Text = "none",
+            Maximum = int.MaxValue,
+            Value = Properties.Settings.Default.settingsFormAlertValue,
+            Width = label.Width / 2,
         };
+        var alertValueTextBox = (NumericUpDown)value;
+        alertValueTextBox.ValueChanged += (s, e) => Properties.Settings.Default.settingsFormAlertValue = (long)alertValueTextBox.Value;
         Controls.Add(value);
 
         value = new ComboBox
         {
-            Location = label.Location + new Size(label.Width * 2, 0),
-            Text = "MB",
+            DropDownStyle = ComboBoxStyle.DropDownList,
+            Location = value.Location + new Size(value.Width , 0),
+            Width = 50,
         };
+        var alertUnitComboBox = (ComboBox)value;
+        alertUnitComboBox.Items.AddRange(new[]
+        {
+            nameof(Unit.B),
+            nameof(Unit.KB),
+            nameof(Unit.MB),
+            nameof(Unit.GB),
+            nameof(Unit.TB),
+            nameof(Unit.PB),
+        });
+        alertUnitComboBox.SelectedItem = Properties.Settings.Default.settingsFormAlertUnit;
+        alertUnitComboBox.SelectedValueChanged += (s, e) => Properties.Settings.Default.settingsFormAlertUnit = (string)alertUnitComboBox.SelectedItem;
         Controls.Add(value);
 
-        //  ***********************************************************************
+        value = new ComboBox
+        {
+            DropDownStyle = ComboBoxStyle.DropDownList,
+            Location = value.Location + new Size(value.Width + 1, 0),
+            Width = 80,
+        };
+        var alertRangeComboBox = (ComboBox)value;
+        alertRangeComboBox.Items.AddRange(new[]
+        {
+            nameof(Range.Hour),
+            nameof(Range.Day),
+            nameof(Range.Month),
+        });
+        alertRangeComboBox.SelectedItem = Properties.Settings.Default.settingsFormAlertRange;
+        alertRangeComboBox.SelectedValueChanged += (s, e) => Properties.Settings.Default.settingsFormAlertRange = (string)alertRangeComboBox.SelectedItem;
+        Controls.Add(value);
+
+        // ***********************************************************************
         label = new Label
         {
             Location = label.Location + new Size(0, label.Height),
@@ -110,12 +128,29 @@ public partial class SettingsForm : Form
 
         value = new ComboBox
         {
+            DropDownStyle = ComboBoxStyle.DropDownList,   
             Location = label.Location + new Size(label.Width, 0),
-            Text = "None",
+            Width = 80,
+        };
+        var graphStyleComboBox = (ComboBox)value;
+        graphStyleComboBox.Items.AddRange(new[]
+        {
+            "SplineArea",
+            "Column",
+        });
+        graphStyleComboBox.SelectedItem = Properties.Settings.Default.detailsFormGraphStyle;
+        graphStyleComboBox.SelectedValueChanged += (s, e) => Properties.Settings.Default.detailsFormGraphStyle = (string)graphStyleComboBox.SelectedItem;
+        Controls.Add(value);
+
+        value = new Label
+        {
+            Location = value.Location + new Size(value.Width, 0),
+            Text = "(takes effect on new window)",
+            Width = label.Width * 2,
         };
         Controls.Add(value);
 
-        //  ***********************************************************************
+        // ***********************************************************************
         label = new Label
         {
             Location = label.Location + new Size(0, label.Height),
@@ -128,13 +163,15 @@ public partial class SettingsForm : Form
         {
             CheckAlign = ContentAlignment.TopLeft,
             Checked = Properties.Settings.Default.applicationSound,
+            Height = 15,
             Location = label.Location + new Size(label.Width, 0),
+            Width = 12,
         };
         var soundCheckBox = (CheckBox)value;
         soundCheckBox.CheckedChanged += (s, e) => Properties.Settings.Default.applicationSound = soundCheckBox.Checked;
         Controls.Add(value);
 
-        //  ***********************************************************************
+        // ***********************************************************************
         label = new Label
         {
             Location = label.Location + new Size(0, label.Height),
@@ -147,14 +184,16 @@ public partial class SettingsForm : Form
         {
             CheckAlign = ContentAlignment.TopLeft,
             Checked = Properties.Settings.Default.applicationStartWithWindows,
+            Height = 15,
             Location = label.Location + new Size(label.Width, 0),
+            Width = 12,
         };
         var startWithWindowsCheckBox = (CheckBox)value;
         startWithWindowsCheckBox.CheckedChanged += (s, e) => Properties.Settings.Default.applicationStartWithWindows = startWithWindowsCheckBox.Checked;
         // TODO: requires more to flip this value
         Controls.Add(value);
 
-        //  ***********************************************************************
+        // ***********************************************************************
         label = new Label
         {
             Location = label.Location + new Size(0, label.Height),
@@ -166,12 +205,12 @@ public partial class SettingsForm : Form
         value = new Label
         {
             Location = label.Location + new Size(label.Width, 0),
-            Text = $"{networkMonitor.PollingInterval.Minutes} minutes (not editable)",
+            Text = $"{networkMonitor.PollingInterval.Minutes} minute (not editable)",
             Width = label.Width * 2,
         };
         Controls.Add(value);
 
-        //  ***********************************************************************
+        // ***********************************************************************
         label = new Label
         {
             Location = label.Location + new Size(0, label.Height * 2),
@@ -180,7 +219,7 @@ public partial class SettingsForm : Form
         };
         Controls.Add(label);
 
-        //  ***********************************************************************
+        // ***********************************************************************
         label = new Label
         {
             Location = label.Location + new Size(0, label.Height),
@@ -204,7 +243,7 @@ public partial class SettingsForm : Form
         });
         Controls.Add(value);
 
-        //  ***********************************************************************
+        // ***********************************************************************
         label = new Label
         {
             Location = label.Location + new Size(0, label.Height),

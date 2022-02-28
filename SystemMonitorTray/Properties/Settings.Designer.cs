@@ -121,6 +121,42 @@ namespace SystemMonitorTray.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Days7")]
+        public string detailsFormSelectedRange {
+            get {
+                return ((string)(this["detailsFormSelectedRange"]));
+            }
+            set {
+                this["detailsFormSelectedRange"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("MB")]
+        public string detailsFormSelectedUnit {
+            get {
+                return ((string)(this["detailsFormSelectedUnit"]));
+            }
+            set {
+                this["detailsFormSelectedUnit"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("SplineArea")]
+        public string detailsFormGraphStyle {
+            get {
+                return ((string)(this["detailsFormGraphStyle"]));
+            }
+            set {
+                this["detailsFormGraphStyle"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("200, 200")]
         public global::System.Drawing.Point settingsFormLocation {
             get {
@@ -133,7 +169,7 @@ namespace SystemMonitorTray.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("800, 600")]
+        [global::System.Configuration.DefaultSettingValueAttribute("600, 300")]
         public global::System.Drawing.Size settingsFormSize {
             get {
                 return ((global::System.Drawing.Size)(this["settingsFormSize"]));
@@ -145,25 +181,37 @@ namespace SystemMonitorTray.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public int detailsSelectedRange {
+        [global::System.Configuration.DefaultSettingValueAttribute("GB")]
+        public string settingsFormAlertUnit {
             get {
-                return ((int)(this["detailsSelectedRange"]));
+                return ((string)(this["settingsFormAlertUnit"]));
             }
             set {
-                this["detailsSelectedRange"] = value;
+                this["settingsFormAlertUnit"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("1048576")]
-        public long detailsSelectedUnit {
+        [global::System.Configuration.DefaultSettingValueAttribute("40")]
+        public long settingsFormAlertValue {
             get {
-                return ((long)(this["detailsSelectedUnit"]));
+                return ((long)(this["settingsFormAlertValue"]));
             }
             set {
-                this["detailsSelectedUnit"] = value;
+                this["settingsFormAlertValue"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Day")]
+        public string settingsFormAlertRange {
+            get {
+                return ((string)(this["settingsFormAlertRange"]));
+            }
+            set {
+                this["settingsFormAlertRange"] = value;
             }
         }
     }
