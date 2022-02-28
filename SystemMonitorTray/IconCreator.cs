@@ -10,15 +10,16 @@ internal class IconCreator
         using var g = Graphics.FromImage(bmp);
         g.SmoothingMode = SmoothingMode.AntiAlias;
 
-        if (percentage < 0)
+        var brush = percentage switch
         {
-            g.FillEllipse(Brushes.Gray, 0, 0, bmp.Width, bmp.Height);
-        }
-        else
-        {
-            g.FillEllipse(Brushes.Green, 0, 0, bmp.Width, bmp.Height);
-            g.FillPie(Brushes.Red, 0, 0, bmp.Width, bmp.Height, 270, (int)(360 * percentage));
-        }
+            <= 0 => Brushes.Gray,
+            <= 0.85 => Brushes.Green,
+            < 1 => Brushes.Yellow,
+            _ => Brushes.Red,
+        };
+
+        g.FillEllipse(Brushes.Gray, 0, 0, bmp.Width, bmp.Height);
+        g.FillPie(brush, 0, 0, bmp.Width, bmp.Height, 270, (int)(360 * percentage));
 
         return Icon.FromHandle(bmp.GetHicon());
     }

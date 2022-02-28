@@ -30,11 +30,6 @@ public partial class Tray : Form
         Properties.Settings.Default.PropertyChanged += (s, e) => Properties.Settings.Default.Save();
 
         InitializeOptions();
-        UpdateNetworkData();
-
-        // TODO: remove after debugging
-        OnDetails(null, null);
-        OnSettings(null, null);
     }
 
     private ContextMenuStrip GetContextMenu()
@@ -82,18 +77,36 @@ public partial class Tray : Form
                 }
             }
         }
+     
+        UpdateNetworkData();
     }
 
     private void UpdateNetworkData()
     {
-        var month = networkMonitor.Logs
-            .Where(log => log.Time >= DateTime.Now.StartOfMonth())
-            .Sum(log => log.BytesTotal) / (double)Unit.GB;
+        var limit = Properties.Settings.Default.settingsFormAlertValue;
 
-        var limit = 900; // TODO: move to settings
+        if (limit == 0)
+        {
+            trayIcon.Icon.Dispose();
+            trayIcon.Icon = IconCreator.CreateIcon(0);
+            return;
+        }
+
+        var unit = Enum.Parse<Unit>(Properties.Settings.Default.settingsFormAlertUnit);
+        var range = Enum.Parse<Range>(Properties.Settings.Default.settingsFormAlertRange);
+
+        var logs = range switch
+        {
+            Range.Hour => networkMonitor.Logs.Where(log => log.Time >= DateTime.Now.RoundDown(TimeSpan.FromHours(1))),
+            Range.Day => networkMonitor.Logs.Where(log => log.Time > DateTime.Today),
+            Range.Month => networkMonitor.Logs.Where(log => log.Time >= DateTime.Now.StartOfMonth()),
+            _ => throw new ArgumentOutOfRangeException("alertRange"),
+        };
+
+        var value = logs.Sum(log => log.BytesTotal) / (double)unit;
 
         trayIcon.Icon.Dispose();
-        trayIcon.Icon = IconCreator.CreateIcon(month / limit);
+        trayIcon.Icon = IconCreator.CreateIcon(value / limit);
 
         //
         //    // TODO: allow show balloon every... 5GB used?
@@ -119,7 +132,7 @@ public partial class Tray : Form
     {
         var settingsForm = new SettingsForm(networkMonitor);
 
-        settingsForm.FormClosed += (s, e) => InitializeOptions();
+        settingsForm.FormClosed += (s, e) =>InitializeOptions();
         settingsForm.ShowDialog();
     }
 
