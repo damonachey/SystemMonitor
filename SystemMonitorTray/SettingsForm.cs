@@ -92,7 +92,7 @@ public partial class SettingsForm : Form
         };
         Controls.Add(value);
 
-        value = new ListBox
+        value = new ComboBox
         {
             Location = label.Location + new Size(label.Width * 2, 0),
             Text = "MB",
@@ -108,9 +108,9 @@ public partial class SettingsForm : Form
         };
         Controls.Add(label);
 
-        value = new ListBox
+        value = new ComboBox
         {
-            Location = value.Location + new Size(label.Width, 0),
+            Location = label.Location + new Size(label.Width, 0),
             Text = "None",
         };
         Controls.Add(value);
