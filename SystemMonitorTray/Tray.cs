@@ -88,7 +88,7 @@ public partial class Tray : Form
         if (limit == 0)
         {
             trayIcon.Icon.Dispose();
-            trayIcon.Icon = IconCreator.CreateIcon(0);
+            trayIcon.Icon = IconCreator.CreateIcon(-1);
             return;
         }
 
