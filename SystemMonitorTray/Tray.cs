@@ -3,11 +3,15 @@ using Microsoft.Win32;
 using Networking;
 
 using System.Reflection;
+using System.Runtime.InteropServices;
 
 namespace SystemMonitorTray;
 
 public partial class Tray : Form
 {
+    [DllImport("user32.dll", CharSet = CharSet.Auto)]
+    extern static bool DestroyIcon(IntPtr handle);
+
     private readonly string startWithWindowsKey = @"Software\Microsoft\Windows\CurrentVersion\Run";
     private readonly string startWithWindowsName = @"Achey\SystemMonitor";
 
@@ -77,7 +81,7 @@ public partial class Tray : Form
                 }
             }
         }
-     
+
         UpdateNetworkData();
     }
 
@@ -88,6 +92,7 @@ public partial class Tray : Form
         if (limit == 0)
         {
             trayIcon.Icon.Dispose();
+            DestroyIcon(trayIcon.Icon.Handle);
             trayIcon.Icon = IconCreator.CreateIcon(-1);
             return;
         }
@@ -106,6 +111,7 @@ public partial class Tray : Form
         var value = logs.Sum(log => log.BytesTotal) / (double)unit;
 
         trayIcon.Icon.Dispose();
+        DestroyIcon(trayIcon.Icon.Handle);
         trayIcon.Icon = IconCreator.CreateIcon(value / limit);
 
         //
@@ -132,7 +138,7 @@ public partial class Tray : Form
     {
         var settingsForm = new SettingsForm(networkMonitor);
 
-        settingsForm.FormClosed += (s, e) =>InitializeOptions();
+        settingsForm.FormClosed += (s, e) => InitializeOptions();
         settingsForm.ShowDialog();
     }
 
