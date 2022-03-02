@@ -26,11 +26,13 @@ public partial class Tray : Form
         trayIcon = new()
         {
             Text = "System Monitor",
-            Icon = IconCreator.CreateIcon(-1),
             ContextMenuStrip = GetContextMenu(),
             Visible = true,
         };
         trayIcon.DoubleClick += (s, e) => new DetailsForm(networkMonitor).Show();
+
+        UpdateIcon(-1);
+
         Properties.Settings.Default.PropertyChanged += (s, e) => Properties.Settings.Default.Save();
 
         InitializeOptions();
@@ -91,9 +93,7 @@ public partial class Tray : Form
 
         if (limit == 0)
         {
-            trayIcon.Icon.Dispose();
-            DestroyIcon(trayIcon.Icon.Handle);
-            trayIcon.Icon = IconCreator.CreateIcon(-1);
+            UpdateIcon(-1);
             return;
         }
 
@@ -110,15 +110,24 @@ public partial class Tray : Form
 
         var value = logs.Sum(log => log.BytesTotal) / (double)unit;
 
-        trayIcon.Icon.Dispose();
-        DestroyIcon(trayIcon.Icon.Handle);
-        trayIcon.Icon = IconCreator.CreateIcon(value / limit);
+        UpdateIcon(value / limit);
 
         //
         //    // TODO: allow show balloon every... 5GB used?
         //    trayIcon.ShowBalloonTip(10000, "Test Title", $"Used {current} MB", ToolTipIcon.Info);
         //
         //}
+    }
+
+    private void UpdateIcon(double percentage)
+    {
+        if (trayIcon.Icon != null)
+        {
+            trayIcon.Icon?.Dispose();
+            DestroyIcon(trayIcon.Icon.Handle!);
+        }
+
+        trayIcon.Icon = IconCreator.CreateIcon(percentage);
     }
 
     protected override void OnLoad(EventArgs e)
