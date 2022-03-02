@@ -124,7 +124,7 @@ public partial class Tray : Form
         if (trayIcon.Icon != null)
         {
             trayIcon.Icon?.Dispose();
-            DestroyIcon(trayIcon.Icon.Handle!);
+            DestroyIcon(trayIcon.Icon!.Handle);
         }
 
         trayIcon.Icon = IconCreator.CreateIcon(percentage);
@@ -172,7 +172,7 @@ public partial class Tray : Form
         var key = Registry.CurrentUser.CreateSubKey(startWithWindowsKey);
         if (Properties.Settings.Default.applicationStartWithWindows)
         {
-            key.SetValue(startWithWindowsName, Assembly.GetEntryAssembly()?.Location!);
+            key.SetValue(startWithWindowsName, Environment.ProcessPath!);
         }
         else
         {
