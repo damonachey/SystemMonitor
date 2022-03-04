@@ -17,16 +17,19 @@ internal static class Program
         // see https://aka.ms/applicationconfiguration.
         ApplicationConfiguration.Initialize();
 
-        // Add the event handler for handling UI thread exceptions to the event.
-        Application.ThreadException += Application_ThreadException;
+        if (!Debugger.IsAttached)
+        {
+            // Add the event handler for handling UI thread exceptions to the event.
+            Application.ThreadException += Application_ThreadException;
 
-        // Set the unhandled exception mode to force all Windows Forms errors to go through our handler.
-        Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
+            // Set the unhandled exception mode to force all Windows Forms errors to go through our handler.
+            Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
 
-        // Add the event handler for handling non-UI thread exceptions to the event. 
-        AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+            // Add the event handler for handling non-UI thread exceptions to the event. 
+            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+        }
 
-        var logPath = Path.GetDirectoryName(ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoamingAndLocal).FilePath);
+        var logPath = Application.LocalUserAppDataPath;
 
         var networkMonitor = new NetworkMonitor(logPath!);
 
