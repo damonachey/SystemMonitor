@@ -131,8 +131,6 @@ public class NetworkMonitor : INetworkMonitor
 
                 System.Diagnostics.Debug.WriteLine($"WARNING Duplicate: {logStr}");
             }
-
-            System.Diagnostics.Debugger.Break();
         }
 
         for (var i = 1; i < Logs.Count; i++)
@@ -151,8 +149,6 @@ public class NetworkMonitor : INetworkMonitor
 
                 System.Diagnostics.Debug.WriteLine($"          Previous: {prevStr}");
                 System.Diagnostics.Debug.WriteLine($"WARNING Math error: {logStr}");
-             
-                System.Diagnostics.Debugger.Break();
             }
         }
     }
