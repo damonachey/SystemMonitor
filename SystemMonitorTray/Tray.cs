@@ -18,6 +18,8 @@ public partial class Tray : Form
     private readonly INetworkMonitor networkMonitor;
     private readonly NotifyIcon trayIcon;
 
+    private Form? settingsForm = default;
+
     public Tray(INetworkMonitor networkMonitor)
     {
         this.networkMonitor = networkMonitor;
@@ -145,10 +147,21 @@ public partial class Tray : Form
 
     private void OnSettings(object? sender, EventArgs e)
     {
-        var settingsForm = new SettingsForm(networkMonitor);
+        if (settingsForm != null)
+        {
+            settingsForm.BringToFront();
+        }
+        else
+        {
+            settingsForm = new SettingsForm(networkMonitor);
 
-        settingsForm.FormClosed += (s, e) => InitializeOptions();
-        settingsForm.ShowDialog();
+            settingsForm.FormClosed += (s, e) =>
+            {
+                settingsForm = null;
+                InitializeOptions();
+            };
+            settingsForm.Show();
+        }
     }
 
     private void OnSound(object? sender, EventArgs e)
