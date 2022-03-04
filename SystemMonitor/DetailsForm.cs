@@ -2,7 +2,7 @@
 
 using System.Windows.Forms.DataVisualization.Charting;
 
-namespace SystemMonitorTray;
+namespace SystemMonitor;
 
 public partial class DetailsForm : Form
 {

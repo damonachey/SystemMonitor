@@ -5,7 +5,7 @@ using Networking;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-namespace SystemMonitorTray;
+namespace SystemMonitor;
 
 public partial class Tray : Form
 {

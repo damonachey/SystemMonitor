@@ -1,4 +1,4 @@
-﻿namespace SystemMonitorTray;
+﻿namespace SystemMonitor;
 
 internal class FormUtilities
 {

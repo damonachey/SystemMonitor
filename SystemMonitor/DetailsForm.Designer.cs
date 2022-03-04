@@ -1,4 +1,4 @@
-﻿namespace SystemMonitorTray;
+﻿namespace SystemMonitor;
 
 partial class DetailsForm
 {

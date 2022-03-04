@@ -3,7 +3,7 @@
 using System.Configuration;
 using System.Diagnostics;
 
-namespace SystemMonitorTray;
+namespace SystemMonitor;
 
 public partial class SettingsForm : Form
 {

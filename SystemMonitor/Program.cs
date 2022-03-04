@@ -3,7 +3,7 @@ using Networking;
 using System.Configuration;
 using System.Diagnostics;
 
-namespace SystemMonitorTray;
+namespace SystemMonitor;
 
 internal static class Program
 {
