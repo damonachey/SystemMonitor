@@ -112,6 +112,7 @@ public class NetworkMonitor : INetworkMonitor
             .ToList();
 
         // write clean logs file
+        Directory.CreateDirectory(Path.GetDirectoryName(LogFileName)!);
         File.WriteAllLines(LogFileName, Logs.Select(log => log.ToString()));
     }
 
