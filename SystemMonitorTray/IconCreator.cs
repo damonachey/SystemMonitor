@@ -14,7 +14,7 @@ internal class IconCreator
         {
             < 0 => Brushes.Green,
             0 => Brushes.Gray,
-            <= 0.85 => Brushes.Green,
+            <= 0.75 => Brushes.Green,
             < 1 => Brushes.Yellow,
             _ => Brushes.Red,
         };
