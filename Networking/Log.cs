@@ -17,5 +17,6 @@ public class Log
 
     public override string ToString() => JsonSerializer.Serialize(this);
  
-    public static Log Parse(string line) => JsonSerializer.Deserialize<Log>(line)!;
+    public static Log Parse(string line) => JsonSerializer.Deserialize<Log>(line) 
+        ?? throw new NullReferenceException(nameof(line));
 }
