@@ -15,12 +15,15 @@ internal class RadioButtonGroup : List<Button>
         button.FlatAppearance.BorderColor = Color.Gray;
         button.Click += (s, e) =>
         {
-            foreach (var b in this)
+            foreach (var button in this)
             {
-                b.BackColor = Properties.Settings.Default.applicationBackgroundColor;
+                button.BackColor = Settings.Default.ApplicationBackgroundColor;
             }
 
-            ((Button)s!).BackColor = Color.Gray;
+            var clickedButton = s as Button
+                ?? throw new NullReferenceException(nameof(s));
+
+            clickedButton.BackColor = Color.Gray;
         };
 
         Add(button);

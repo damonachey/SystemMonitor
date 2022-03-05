@@ -2,17 +2,18 @@
 
 using System.Configuration;
 using System.Diagnostics;
+using System.Windows.Forms.DataVisualization.Charting;
 
 namespace SystemMonitor;
 
 public partial class SettingsForm : Form
 {
-    private INetworkMonitor networkMonitor = default!;
+    private readonly INetworkMonitor networkMonitor = default!;
 
     public SettingsForm(INetworkMonitor networkMonitor)
     {
-        BackColor = Properties.Settings.Default.applicationBackgroundColor;
-        ForeColor = Properties.Settings.Default.applicationForegroundColor;
+        BackColor = Settings.Default.ApplicationBackgroundColor;
+        ForeColor = Settings.Default.ApplicationForegroundColor;
         MinimumSize = new Size(600, 300);
         StartPosition = FormStartPosition.Manual;
 
@@ -26,8 +27,8 @@ public partial class SettingsForm : Form
 
     private void OnLoad()
     {
-        Location = Properties.Settings.Default.settingsFormLocation;
-        Size = Properties.Settings.Default.settingsFormSize;
+        Location = Settings.Default.SettingsFormLocation;
+        Size = Settings.Default.SettingsFormSize;
 
         if (!FormUtilities.IsOnScreen(Location, Size))
         {
@@ -43,8 +44,8 @@ public partial class SettingsForm : Form
     {
         if (Size.Width >= MinimumSize.Width && Size.Height >= MinimumSize.Height)
         {
-            Properties.Settings.Default.settingsFormLocation = Location;
-            Properties.Settings.Default.settingsFormSize = Size;
+            Settings.Default.SettingsFormLocation = Location;
+            Settings.Default.SettingsFormSize = Size;
         }
     }
 
@@ -73,11 +74,11 @@ public partial class SettingsForm : Form
         {
             Location = label.Location + new Size(label.Width, 0),
             Maximum = int.MaxValue,
-            Value = Properties.Settings.Default.settingsFormAlertValue,
+            Value = Settings.Default.SettingsFormAlertValue,
             Width = label.Width / 2,
         };
         var alertValueTextBox = (NumericUpDown)value;
-        alertValueTextBox.ValueChanged += (s, e) => Properties.Settings.Default.settingsFormAlertValue = (long)alertValueTextBox.Value;
+        alertValueTextBox.ValueChanged += (s, e) => Settings.Default.SettingsFormAlertValue = (long)alertValueTextBox.Value;
         Controls.Add(value);
 
         value = new ComboBox
@@ -96,8 +97,8 @@ public partial class SettingsForm : Form
             nameof(Unit.TB),
             nameof(Unit.PB),
         });
-        alertUnitComboBox.SelectedItem = Properties.Settings.Default.settingsFormAlertUnit;
-        alertUnitComboBox.SelectedValueChanged += (s, e) => Properties.Settings.Default.settingsFormAlertUnit = (string)alertUnitComboBox.SelectedItem;
+        alertUnitComboBox.SelectedItem = Settings.Default.SettingsFormAlertUnit.ToString();
+        alertUnitComboBox.SelectedValueChanged += (s, e) => Settings.Default.SettingsFormAlertUnit = Enum.Parse<Unit>((string)alertUnitComboBox.SelectedItem);
         Controls.Add(value);
 
         value = new ComboBox
@@ -113,8 +114,8 @@ public partial class SettingsForm : Form
             nameof(Range.Day),
             nameof(Range.Month),
         });
-        alertRangeComboBox.SelectedItem = Properties.Settings.Default.settingsFormAlertRange;
-        alertRangeComboBox.SelectedValueChanged += (s, e) => Properties.Settings.Default.settingsFormAlertRange = (string)alertRangeComboBox.SelectedItem;
+        alertRangeComboBox.SelectedItem = Settings.Default.SettingsFormAlertRange.ToString();
+        alertRangeComboBox.SelectedValueChanged += (s, e) => Settings.Default.SettingsFormAlertRange = Enum.Parse<Range>((string)alertRangeComboBox.SelectedItem);
         Controls.Add(value);
 
         // ***********************************************************************
@@ -138,8 +139,8 @@ public partial class SettingsForm : Form
             "SplineArea",
             "Column",
         });
-        graphStyleComboBox.SelectedItem = Properties.Settings.Default.detailsFormGraphStyle;
-        graphStyleComboBox.SelectedValueChanged += (s, e) => Properties.Settings.Default.detailsFormGraphStyle = (string)graphStyleComboBox.SelectedItem;
+        graphStyleComboBox.SelectedItem = Settings.Default.DetailsFormChartType.ToString();
+        graphStyleComboBox.SelectedValueChanged += (s, e) => Settings.Default.DetailsFormChartType = Enum.Parse<SeriesChartType>((string)graphStyleComboBox.SelectedItem);
         Controls.Add(value);
 
         value = new Label
@@ -162,13 +163,13 @@ public partial class SettingsForm : Form
         value = new CheckBox
         {
             CheckAlign = ContentAlignment.TopLeft,
-            Checked = Properties.Settings.Default.applicationSound,
+            Checked = Settings.Default.ApplicationSound,
             Height = 15,
             Location = label.Location + new Size(label.Width, 0),
             Width = 12,
         };
         var soundCheckBox = (CheckBox)value;
-        soundCheckBox.CheckedChanged += (s, e) => Properties.Settings.Default.applicationSound = soundCheckBox.Checked;
+        soundCheckBox.CheckedChanged += (s, e) => Settings.Default.ApplicationSound = soundCheckBox.Checked;
         Controls.Add(value);
 
         // ***********************************************************************
@@ -183,13 +184,13 @@ public partial class SettingsForm : Form
         value = new CheckBox
         {
             CheckAlign = ContentAlignment.TopLeft,
-            Checked = Properties.Settings.Default.applicationStartWithWindows,
+            Checked = Settings.Default.ApplicationStartWithWindows,
             Height = 15,
             Location = label.Location + new Size(label.Width, 0),
             Width = 12,
         };
         var startWithWindowsCheckBox = (CheckBox)value;
-        startWithWindowsCheckBox.CheckedChanged += (s, e) => Properties.Settings.Default.applicationStartWithWindows = startWithWindowsCheckBox.Checked;
+        startWithWindowsCheckBox.CheckedChanged += (s, e) => Settings.Default.ApplicationStartWithWindows = startWithWindowsCheckBox.Checked;
         // TODO: requires more to flip this value
         Controls.Add(value);
 
@@ -228,7 +229,7 @@ public partial class SettingsForm : Form
         };
         Controls.Add(label);
 
-        var settingsFile = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoamingAndLocal).FilePath;
+        var settingsFile = Settings.FileName;
         value = new LinkLabel
         {
             LinkColor = Color.White,

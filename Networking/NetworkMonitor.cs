@@ -7,7 +7,7 @@ public class NetworkMonitor : INetworkMonitor
     public delegate void UpdateHandler();
     public event UpdateHandler? OnUpdate;
 
-    public string LogFileName { get; } = default!;
+    public string LogFileName { get; }
     public TimeSpan PollingInterval { get; } = TimeSpan.FromSeconds(60);
     public List<Log> Logs { get; internal set; } = new();
 
@@ -111,8 +111,10 @@ public class NetworkMonitor : INetworkMonitor
             .Where(log => log.Time > DateTime.Today.AddDays(-365))
             .ToList();
 
-        // write clean logs file
-        Directory.CreateDirectory(Path.GetDirectoryName(LogFileName)!);
+        var directory = Path.GetDirectoryName(LogFileName)
+            ?? throw new NullReferenceException(nameof(LogFileName));
+
+        Directory.CreateDirectory(directory);
         File.WriteAllLines(LogFileName, Logs.Select(log => log.ToString()));
     }
 
@@ -153,7 +155,7 @@ public class NetworkMonitor : INetworkMonitor
         }
     }
 
-    private static Log previous = default!;
+    private static Log? previous;
 
     private static Log GetCurrentLog(TimeSpan round)
     {

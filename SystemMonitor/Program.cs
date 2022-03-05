@@ -29,15 +29,15 @@ internal static class Program
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
         }
 
-        var logPath = Application.LocalUserAppDataPath;
-
-        var networkMonitor = new NetworkMonitor(logPath!);
+        var appDataLocal = Application.LocalUserAppDataPath;
+        var networkMonitor = new NetworkMonitor(appDataLocal);
 
         // if this call ever returns it will only be for an error condition
         networkMonitor
             .Start()
             .ContinueWith(task => UserCrashMessage(task.Exception!));
 
+        Settings.Load($@"{appDataLocal}\config.json");
         var application = new Tray(networkMonitor);
 
         Application.Run(application);

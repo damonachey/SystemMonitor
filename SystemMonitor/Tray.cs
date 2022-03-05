@@ -35,8 +35,6 @@ public partial class Tray : Form
 
         UpdateIcon(-1);
 
-        Properties.Settings.Default.PropertyChanged += (s, e) => Properties.Settings.Default.Save();
-
         InitializeOptions();
     }
 
@@ -68,7 +66,7 @@ public partial class Tray : Form
     private void InitializeOptions()
     {
         var key = Registry.CurrentUser.CreateSubKey(startWithWindowsKey);
-        Properties.Settings.Default.applicationStartWithWindows = key.GetValue(startWithWindowsName) != null;
+        Settings.Default.ApplicationStartWithWindows = key.GetValue(startWithWindowsName) != null;
 
         foreach (object item in trayIcon.ContextMenuStrip.Items)
         {
@@ -76,12 +74,12 @@ public partial class Tray : Form
             {
                 if (menuItem.Text == "Start With Windows")
                 {
-                    menuItem.Checked = Properties.Settings.Default.applicationStartWithWindows;
+                    menuItem.Checked = Settings.Default.ApplicationStartWithWindows;
                 }
 
                 if (menuItem.Text == "Sound")
                 {
-                    menuItem.Checked = Properties.Settings.Default.applicationSound;
+                    menuItem.Checked = Settings.Default.ApplicationSound;
                 }
             }
         }
@@ -91,7 +89,7 @@ public partial class Tray : Form
 
     private void UpdateNetworkData()
     {
-        var limit = Properties.Settings.Default.settingsFormAlertValue;
+        var limit = Settings.Default.SettingsFormAlertValue;
 
         if (limit == 0)
         {
@@ -99,8 +97,8 @@ public partial class Tray : Form
             return;
         }
 
-        var unit = Enum.Parse<Unit>(Properties.Settings.Default.settingsFormAlertUnit);
-        var range = Enum.Parse<Range>(Properties.Settings.Default.settingsFormAlertRange);
+        var unit = Settings.Default.SettingsFormAlertUnit;
+        var range = Settings.Default.SettingsFormAlertRange;
 
         var logs = range switch
         {
@@ -113,12 +111,6 @@ public partial class Tray : Form
         var value = logs.Sum(log => log.BytesTotal) / (double)unit;
 
         UpdateIcon(value / limit);
-
-        //
-        //    // TODO: allow show balloon every... 5GB used?
-        //    trayIcon.ShowBalloonTip(10000, "Test Title", $"Used {current} MB", ToolTipIcon.Info);
-        //
-        //}
     }
 
     private void UpdateIcon(double percentage)
@@ -166,11 +158,12 @@ public partial class Tray : Form
 
     private void OnSound(object? sender, EventArgs e)
     {
-        var item = (ToolStripMenuItem)sender!;
+        var item = sender as ToolStripMenuItem
+            ?? throw new NullReferenceException(nameof(sender));
 
-        Properties.Settings.Default.applicationSound = item.Checked;
+        Settings.Default.ApplicationSound = item.Checked;
 
-        if (Properties.Settings.Default.applicationSound)
+        if (Settings.Default.ApplicationSound)
         {
             Console.Beep();
         }
@@ -178,12 +171,14 @@ public partial class Tray : Form
 
     private void OnStartWithWindows(object? sender, EventArgs e)
     {
-        var item = (ToolStripMenuItem)sender!;
+        var item = sender as ToolStripMenuItem
+            ?? throw new NullReferenceException(nameof(sender));
 
-        Properties.Settings.Default.applicationStartWithWindows = item.Checked;
+        Settings.Default.ApplicationStartWithWindows = item.Checked;
 
         var key = Registry.CurrentUser.CreateSubKey(startWithWindowsKey);
-        if (Properties.Settings.Default.applicationStartWithWindows)
+
+        if (Settings.Default.ApplicationStartWithWindows)
         {
             key.SetValue(startWithWindowsName, Environment.ProcessPath!);
         }

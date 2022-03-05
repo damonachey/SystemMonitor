@@ -14,13 +14,13 @@ public partial class DetailsForm : Form
 
     public DetailsForm(INetworkMonitor networkMonitor)
     {
-        BackColor = Properties.Settings.Default.applicationBackgroundColor;
-        ForeColor = Properties.Settings.Default.applicationForegroundColor;
+        BackColor = Settings.Default.ApplicationBackgroundColor;
+        ForeColor = Settings.Default.ApplicationForegroundColor;
         MinimumSize = new(600, 300);
         StartPosition = FormStartPosition.Manual;
 
-        selectedRange = Enum.Parse<Range>(Properties.Settings.Default.detailsFormSelectedRange);
-        selectedUnit = Enum.Parse<Unit>(Properties.Settings.Default.detailsFormSelectedUnit);
+        selectedRange = Settings.Default.DetailsFormSelectedRange;
+        selectedUnit = Settings.Default.DetailsFormSelectedUnit;
 
         InitializeComponent();
         InitializeChartSettingsButtons();
@@ -33,8 +33,8 @@ public partial class DetailsForm : Form
 
     private void OnLoad(object? sender, EventArgs e)
     {
-        Location = Properties.Settings.Default.detailsFormLocation;
-        Size = Properties.Settings.Default.detailsFormSize;
+        Location = Settings.Default.DetailsFormLocation;
+        Size = Settings.Default.DetailsFormSize;
 
         if (!FormUtilities.IsOnScreen(Location, Size))
         {
@@ -51,8 +51,8 @@ public partial class DetailsForm : Form
     {
         if (Size.Width >= MinimumSize.Width && Size.Height >= MinimumSize.Height)
         {
-            Properties.Settings.Default.detailsFormLocation = Location;
-            Properties.Settings.Default.detailsFormSize = Size;
+            Settings.Default.DetailsFormLocation = Location;
+            Settings.Default.DetailsFormSize = Size;
         }
     }
 
@@ -84,7 +84,7 @@ public partial class DetailsForm : Form
             range.Click += (s, e) =>
             {
                 selectedRange = (Range)range.Tag;
-                Properties.Settings.Default.detailsFormSelectedRange = Enum.GetName(selectedRange);
+                Settings.Default.DetailsFormSelectedRange = selectedRange;
                 UpdateChart();
             };
         }
@@ -115,7 +115,7 @@ public partial class DetailsForm : Form
             unit.Click += (s, e) =>
             {
                 selectedUnit = (Unit)unit.Tag;
-                Properties.Settings.Default.detailsFormSelectedUnit = Enum.GetName(selectedUnit);
+                Settings.Default.DetailsFormSelectedUnit = selectedUnit;
                 UpdateChart();
             };
         }
@@ -130,8 +130,8 @@ public partial class DetailsForm : Form
             Anchor = AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Top | AnchorStyles.Bottom,
             BackColor = BackColor,
             ForeColor = ForeColor,
-            Location = new Point(0, 25),
-            Size = new Size(this.ClientSize.Width, this.ClientSize.Height - 100),
+            Location = new(0, 25),
+            Size = new(this.ClientSize.Width, this.ClientSize.Height - 100),
             TabStop = false,
         };
 
@@ -159,13 +159,13 @@ public partial class DetailsForm : Form
         chart.ChartAreas.Add(ca);
 
         var series = new[] {
-            new Series("Sent") { Color = Properties.Settings.Default.detailsFormSentChartColor },
-            new Series("Received") { Color = Properties.Settings.Default.detailsFormReceivedChartColor },
+            new Series("Sent") { Color = Settings.Default.DetailsFormSentChartColor },
+            new Series("Received") { Color = Settings.Default.DetailsFormReceivedChartColor },
         };
 
         foreach (var s in series)
         {
-            s.ChartType = Enum.Parse<SeriesChartType>(Properties.Settings.Default.detailsFormGraphStyle);
+            s.ChartType = Settings.Default.DetailsFormChartType;
             s.CustomProperties = "DrawSideBySide=False";
             s.IsVisibleInLegend = true;
             s.LabelForeColor = ForeColor;
@@ -194,14 +194,14 @@ public partial class DetailsForm : Form
         {
             var description = new Label { Text = totals[i].Description };
             description.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            description.Location = new Point(i / 2 * 200 + 10, ClientSize.Height - (1 - i % 2) * description.Height - 30);
+            description.Location = new(i / 2 * 200 + 10, ClientSize.Height - (1 - i % 2) * description.Height - 30);
             description.Width = 80;
             Controls.Add(description);
 
             var value = totals[i].Value;
 
             value.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            value.Location = new Point(description.Location.X + 80, description.Location.Y);
+            value.Location = new(description.Location.X + 80, description.Location.Y);
             value.Text = $"- GB";
             value.TextAlign = ContentAlignment.TopRight;
             value.Width = 80;
