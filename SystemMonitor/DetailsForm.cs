@@ -41,7 +41,7 @@ public partial class DetailsForm : Form
             SetDesktopLocation(0, 0);
         }
 
-        FormClosing += (s, e) => SaveWindowPosition();
+        FormClosing += (s, e) => { SaveWindowPosition(); Settings.Save(); };
         LocationChanged += (s, e) => SaveWindowPosition();
         Shown += (s, e) => UpdateNetworkData();
         SizeChanged += (s, e) => SaveWindowPosition();

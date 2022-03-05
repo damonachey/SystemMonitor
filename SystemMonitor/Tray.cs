@@ -30,7 +30,7 @@ public partial class Tray : Form
             ContextMenuStrip = GetContextMenu(),
             Visible = true,
         };
-        trayIcon.DoubleClick += (s, e) => new DetailsForm(networkMonitor).Show();
+        trayIcon.DoubleClick += OnDetails;
 
         UpdateIcon(-1);
 
@@ -64,8 +64,7 @@ public partial class Tray : Form
 
     private void InitializeOptions()
     {
-        var key = Registry.CurrentUser.CreateSubKey(startWithWindowsKey);
-        Settings.Default.ApplicationStartWithWindows = key.GetValue(startWithWindowsName) != null;
+        SetRegistryRunStatus();
 
         foreach (object item in trayIcon.ContextMenuStrip.Items)
         {
@@ -138,11 +137,7 @@ public partial class Tray : Form
 
     private void OnSettings(object? sender, EventArgs e)
     {
-        if (settingsForm != null)
-        {
-            settingsForm.BringToFront();
-        }
-        else
+        if (settingsForm == null)
         {
             settingsForm = new SettingsForm(networkMonitor);
 
@@ -150,8 +145,14 @@ public partial class Tray : Form
             {
                 settingsForm = null;
                 InitializeOptions();
+                UpdateNetworkData();
             };
+
             settingsForm.Show();
+        }
+        else
+        {
+            settingsForm.BringToFront();
         }
     }
 
@@ -161,11 +162,7 @@ public partial class Tray : Form
             ?? throw new NullReferenceException(nameof(sender));
 
         Settings.Default.ApplicationSound = item.Checked;
-
-        if (Settings.Default.ApplicationSound)
-        {
-            Console.Beep();
-        }
+        Settings.Save();
     }
 
     private void OnStartWithWindows(object? sender, EventArgs e)
@@ -174,7 +171,13 @@ public partial class Tray : Form
             ?? throw new NullReferenceException(nameof(sender));
 
         Settings.Default.ApplicationStartWithWindows = item.Checked;
+        Settings.Save();
 
+        SetRegistryRunStatus();
+    }
+
+    private void SetRegistryRunStatus()
+    {
         var key = Registry.CurrentUser.CreateSubKey(startWithWindowsKey);
 
         if (Settings.Default.ApplicationStartWithWindows)
@@ -183,7 +186,10 @@ public partial class Tray : Form
         }
         else
         {
-            key.DeleteValue(startWithWindowsName);
+            if (key.GetValue(startWithWindowsName) != null)
+            {
+                key.DeleteValue(startWithWindowsName);
+            }
         }
     }
 

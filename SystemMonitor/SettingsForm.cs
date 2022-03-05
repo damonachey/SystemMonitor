@@ -34,7 +34,7 @@ public partial class SettingsForm : Form
             SetDesktopLocation(0, 0);
         }
 
-        FormClosing += (s, e) => SaveWindowPosition();
+        FormClosing += (s, e) => { SaveWindowPosition(); Settings.Save(); };
         LocationChanged += (s, e) => SaveWindowPosition();
         SizeChanged += (s, e) => SaveWindowPosition();
     }
@@ -77,7 +77,8 @@ public partial class SettingsForm : Form
             Width = label.Width / 2,
         };
         var alertValueTextBox = (NumericUpDown)value;
-        alertValueTextBox.ValueChanged += (s, e) => Settings.Default.SettingsFormAlertValue = (long)alertValueTextBox.Value;
+        // using validating in case the window is closed before leaving the control which won't trigger a ValueChanged event
+        alertValueTextBox.Validating += (s, e) => Settings.Default.SettingsFormAlertValue = (long)alertValueTextBox.Value;
         Controls.Add(value);
 
         value = new ComboBox
@@ -115,6 +116,14 @@ public partial class SettingsForm : Form
         });
         alertRangeComboBox.SelectedItem = Settings.Default.SettingsFormAlertRange.ToString();
         alertRangeComboBox.SelectedValueChanged += (s, e) => Settings.Default.SettingsFormAlertRange = Enum.Parse<Range>((string)alertRangeComboBox.SelectedItem);
+        Controls.Add(value);
+
+        value = new Label
+        {
+            Location = value.Location + new Size(value.Width, 0),
+            Text = "(zero to disable)",
+            Width = label.Width * 2,
+        };
         Controls.Add(value);
 
         // ***********************************************************************
