@@ -180,8 +180,6 @@ public partial class DetailsForm : Form
     {
         totals = new()
         {
-            //("Total Hour:", new(), Range.Hour),
-            //("Total All:", new(),  Range.All),
             ("Total Day:", new(), Range.Day),
             ("Total 24 Hours:", new(), Range.Hours24),
             ("Total Week:", new(), Range.Week),
@@ -218,11 +216,13 @@ public partial class DetailsForm : Form
     private void UpdateNetworkData()
     {
         lock (this)
+        {
             Invoke(() =>
             {
                 UpdateTotals();
                 UpdateChart();
             });
+        }
     }
 
     private void UpdateTotals()
@@ -251,12 +251,10 @@ public partial class DetailsForm : Form
             _ => $"minute",
         };
 
-        var title = $"{Enum.GetName<Unit>(selectedUnit)} / {divisor}";
+        var title = $"{Enum.GetName(selectedUnit)} / {divisor}";
 
         chart.ChartAreas[0].AxisY.Title = title;
-
-        if (selectedRange < Range.Week) chart.ChartAreas[0].AxisX.LabelStyle.Format = "HH:mm";
-        else chart.ChartAreas[0].AxisX.LabelStyle.Format = "";
+        chart.ChartAreas[0].AxisX.LabelStyle.Format = selectedRange < Range.Week ? "HH:mm" : "";
 
         foreach (var log in GetLogs(selectedRange))
         {

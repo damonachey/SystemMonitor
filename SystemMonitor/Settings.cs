@@ -75,7 +75,7 @@ internal class Settings
     public Point SettingsFormLocation { get; set; } = new(0, 0);
     public Size SettingsFormSize { get; set; } = new(600, 300);
     public long SettingsFormAlertValue { get; set; } = 0;
-    public Unit SettingsFormAlertUnit { get; set; } = Unit.MB;
+    public Unit SettingsFormAlertUnit { get; set; } = Unit.GB;
     public Range SettingsFormAlertRange { get; set; } = Range.Day;
 }
 

@@ -2,7 +2,6 @@ using Microsoft.Win32;
 
 using Networking;
 
-using System.Reflection;
 using System.Runtime.InteropServices;
 
 namespace SystemMonitor;

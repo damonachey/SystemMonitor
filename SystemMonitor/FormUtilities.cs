@@ -8,15 +8,15 @@ internal class FormUtilities
         var PixelsVisible = 0;
         var Rec = new Rectangle(RecLocation, RecSize);
 
-        foreach (var Scrn in Screen.AllScreens)
+        foreach (var screen in Screen.AllScreens)
         {
-            var r = Rectangle.Intersect(Rec, Scrn.WorkingArea);
+            var r = Rectangle.Intersect(Rec, screen.WorkingArea);
 
             // intersect rectangle with screen
             if (r.Width != 0 & r.Height != 0)
             {
-                PixelsVisible += (r.Width * r.Height);
                 // tally visible pixels
+                PixelsVisible += (r.Width * r.Height);
             }
         }
         return PixelsVisible >= (Rec.Width * Rec.Height) * MinPercentOnScreen;

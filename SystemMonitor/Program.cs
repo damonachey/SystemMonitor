@@ -1,6 +1,5 @@
 using Networking;
 
-using System.Configuration;
 using System.Diagnostics;
 
 namespace SystemMonitor;
