@@ -10,6 +10,7 @@ namespace SystemMonitor;
 internal class Settings
 {
     public static string FileName { get; private set; } = default!;
+
     private static Settings instance = default!;
 
     public static Settings Default => instance
@@ -86,7 +87,7 @@ internal class ColorConverter : JsonConverter<Color>
         var value = reader.GetString()
             ?? throw new ArgumentNullException(nameof(reader));
 
-        var match = Regex.Match(value, @"{A=(?<A>\d+), R=(?<R>\d+), G=(?<G>\d+), B=(?<B>\d+)}");
+        var match = Regex.Match(value, @"{\s*A=(?<A>\d+),\s*R=(?<R>\d+),\s*G=(?<G>\d+),\s* B=(?<B>\d+)\s*}");
 
         return Color.FromArgb(
             int.Parse(match.Groups["A"].Value),
@@ -97,7 +98,7 @@ internal class ColorConverter : JsonConverter<Color>
 
     public override void Write(Utf8JsonWriter writer, Color value, JsonSerializerOptions options)
     {
-        writer.WriteStringValue($"{{A={value.A}, R={value.R}, G={value.G}, B={value.B}}}");
+        writer.WriteStringValue($@"{{A={value.A}, R={value.R}, G={value.G}, B={value.B}}}");
     }
 }
 
@@ -108,7 +109,7 @@ internal class PointConverter : JsonConverter<Point>
         var value = reader.GetString()
             ?? throw new ArgumentNullException(nameof(reader));
 
-        var match = Regex.Match(value, @"{X=(?<X>\d+),Y=(?<Y>\d+)}");
+        var match = Regex.Match(value, @"{\s*X=(?<X>\d+),\s*Y=(?<Y>\d+)\s*}");
 
         return new(
             int.Parse(match.Groups["X"].Value),
@@ -128,7 +129,7 @@ internal class SizeConverter : JsonConverter<Size>
         var value = reader.GetString()
             ?? throw new ArgumentNullException(nameof(reader));
 
-        var match = Regex.Match(value, @"{Width=(?<Width>\d+), Height=(?<Height>\d+)}");
+        var match = Regex.Match(value, @"{\s*Width=(?<Width>\d+),\s*Height=(?<Height>\d+)\s*}");
 
         return new(
             int.Parse(match.Groups["Width"].Value),

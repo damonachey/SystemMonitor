@@ -1,6 +1,5 @@
 ﻿using Networking;
 
-using System.Configuration;
 using System.Diagnostics;
 using System.Windows.Forms.DataVisualization.Charting;
 
