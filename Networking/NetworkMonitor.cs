@@ -82,7 +82,7 @@ public class NetworkMonitor : INetworkMonitor
 
         if (intervals == 0)
         {
-            previous = last; 
+            previous = last;
             return;
         }
 
@@ -91,7 +91,7 @@ public class NetworkMonitor : INetworkMonitor
 
         for (var time = last.Time + PollingInterval; time <= current.Time; time += PollingInterval)
         {
-            Logs.Add(last = new Log
+            Logs.Add(last = new()
             {
                 Time = time,
                 BytesReceived = deltaBytesReceived,
@@ -140,12 +140,14 @@ public class NetworkMonitor : INetworkMonitor
             var diffBytesReceived = Logs[i].CumulativeBytesReceived - Logs[i - 1].CumulativeBytesReceived;
             var diffBytesSent = Logs[i].CumulativeBytesSent - Logs[i - 1].CumulativeBytesSent;
 
+            // probably a restart, ignore
+            if (diffBytesReceived < 0 && diffBytesSent < 0)
+            {
+                continue;
+            }
+
             if (diffBytesReceived != Logs[i].BytesReceived || diffBytesSent != Logs[i].BytesSent)
             {
-                // probably a restart, ignore
-                if (diffBytesReceived < 0 && diffBytesSent < 0)
-                    continue;
-
                 var prevStr = System.Text.Json.JsonSerializer.Serialize(Logs[i - 1]);
                 var logStr = System.Text.Json.JsonSerializer.Serialize(Logs[i]);
 
