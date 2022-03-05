@@ -17,7 +17,6 @@ public partial class DetailsForm : Form
         BackColor = Settings.Default.ApplicationBackgroundColor;
         ForeColor = Settings.Default.ApplicationForegroundColor;
         MinimumSize = new(600, 300);
-        StartPosition = FormStartPosition.Manual;
 
         selectedRange = Settings.Default.DetailsFormSelectedRange;
         selectedUnit = Settings.Default.DetailsFormSelectedUnit;
