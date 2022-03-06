@@ -87,7 +87,7 @@ internal class ColorConverter : JsonConverter<Color>
         var value = reader.GetString()
             ?? throw new ArgumentNullException(nameof(reader));
 
-        var match = Regex.Match(value, @"{\s*A=(?<A>\d+),\s*R=(?<R>\d+),\s*G=(?<G>\d+),\s* B=(?<B>\d+)\s*}");
+        var match = Regex.Match(value, @"{\s*A=(?<A>.*),\s*R=(?<R>.*),\s*G=(?<G>.*),\s* B=(?<B>.*)\s*}");
 
         return Color.FromArgb(
             int.Parse(match.Groups["A"].Value),
@@ -109,7 +109,7 @@ internal class PointConverter : JsonConverter<Point>
         var value = reader.GetString()
             ?? throw new ArgumentNullException(nameof(reader));
 
-        var match = Regex.Match(value, @"{\s*X=(?<X>\d+),\s*Y=(?<Y>\d+)\s*}");
+        var match = Regex.Match(value, @"{\s*X=(?<X>.*),\s*Y=(?<Y>.*)\s*}");
 
         return new(
             int.Parse(match.Groups["X"].Value),
@@ -129,7 +129,7 @@ internal class SizeConverter : JsonConverter<Size>
         var value = reader.GetString()
             ?? throw new ArgumentNullException(nameof(reader));
 
-        var match = Regex.Match(value, @"{\s*Width=(?<Width>\d+),\s*Height=(?<Height>\d+)\s*}");
+        var match = Regex.Match(value, @"{\s*Width=(?<Width>.*),\s*Height=(?<Height>.*)\s*}");
 
         return new(
             int.Parse(match.Groups["Width"].Value),

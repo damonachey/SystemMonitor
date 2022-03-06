@@ -274,5 +274,22 @@ public partial class SettingsForm : Form
             UseShellExecute = true,
         });
         Controls.Add(value);
+
+        // ***********************************************************************
+        label = new Label
+        {
+            Location = label.Location + new Size(0, label.Height),
+            Text = $"Version:",
+            Width = label.Width,
+        };
+        Controls.Add(label);
+
+        value = new Label
+        {
+            Location = label.Location + new Size(label.Width, 0),
+            Text = "v0.2.2",
+            Width = label.Width * 2,
+        };
+        Controls.Add(value);
     }
 }

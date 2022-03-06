@@ -74,14 +74,24 @@ public class NetworkMonitor : INetworkMonitor
 
         if (last.Time <= lastStart)
         {
+            // a restart occurred, use that time
             last = new() { Time = lastStart };
         }
 
         var current = GetCurrentLog(PollingInterval);
+
+        if (current.CumulativeBytesReceived < last.CumulativeBytesReceived || current.CumulativeBytesSent < last.CumulativeBytesSent)
+        {
+            // the network totals have been reset, start as if new from last time
+            last = new() { Time = last.Time };
+            previous = last;
+        }
+
         var intervals = (int)((current.Time - last.Time) / PollingInterval);
 
         if (intervals == 0)
         {
+            // restarted within the same polling interval, just leave
             previous = last;
             return;
         }
@@ -123,20 +133,23 @@ public class NetworkMonitor : INetworkMonitor
         var duplicates = Logs
             .GroupBy(logs => logs.Time)
             .Where(group => group.Count() > 1)
-            .ToList();
+            .ToArray();
 
         if (duplicates.Any())
         {
             foreach (var duplicate in duplicates)
             {
-                var logStr = System.Text.Json.JsonSerializer.Serialize(duplicate);
-
-                System.Diagnostics.Debug.WriteLine($"WARNING Duplicate: {logStr}");
+                System.Diagnostics.Debug.WriteLine($"WARNING Duplicate: {duplicate}");
             }
         }
 
         for (var i = 1; i < Logs.Count; i++)
         {
+            if (Logs[i].BytesReceived < 0 || Logs[i].BytesSent < 0)
+            {
+                System.Diagnostics.Debug.WriteLine($"WARNING Negative(s): {Logs[i]}");
+            }
+
             var diffBytesReceived = Logs[i].CumulativeBytesReceived - Logs[i - 1].CumulativeBytesReceived;
             var diffBytesSent = Logs[i].CumulativeBytesSent - Logs[i - 1].CumulativeBytesSent;
 
@@ -148,11 +161,8 @@ public class NetworkMonitor : INetworkMonitor
 
             if (diffBytesReceived != Logs[i].BytesReceived || diffBytesSent != Logs[i].BytesSent)
             {
-                var prevStr = System.Text.Json.JsonSerializer.Serialize(Logs[i - 1]);
-                var logStr = System.Text.Json.JsonSerializer.Serialize(Logs[i]);
-
-                System.Diagnostics.Debug.WriteLine($"          Previous: {prevStr}");
-                System.Diagnostics.Debug.WriteLine($"WARNING Math error: {logStr}");
+                System.Diagnostics.Debug.WriteLine($"          Previous: {Logs[i - 1]}");
+                System.Diagnostics.Debug.WriteLine($"WARNING Math error: {Logs[i]}");
             }
         }
     }
