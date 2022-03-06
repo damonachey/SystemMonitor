@@ -91,7 +91,7 @@ public class NetworkMonitor : INetworkMonitor
 
         if (intervals == 0)
         {
-            // restarted within the same polling interval, just leave
+            // restarted within the same polling interval, leave
             previous = last;
             return;
         }
@@ -192,6 +192,13 @@ public class NetworkMonitor : INetworkMonitor
             CumulativeBytesReceived = current.CumulativeBytesReceived,
             CumulativeBytesSent = current.CumulativeBytesSent
         };
+
+        if (log.BytesReceived < 0 || log.BytesSent < 0)
+        {
+            // the network connection may have been reset, start as if new
+            log.BytesReceived = log.CumulativeBytesReceived;
+            log.BytesSent = log.CumulativeBytesSent;
+        }
 
         previous = current;
 
