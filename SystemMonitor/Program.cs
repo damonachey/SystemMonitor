@@ -28,7 +28,7 @@ internal static class Program
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
         }
 
-        var appDataLocal = Application.LocalUserAppDataPath;
+        var appDataLocal = GetAppDataLocalPath();
         var networkMonitor = new NetworkMonitor(appDataLocal);
 
         // if this call ever returns it will only be for an error condition
@@ -40,6 +40,11 @@ internal static class Program
         var application = new Tray(networkMonitor);
 
         Application.Run(application);
+    }
+
+    private static string GetAppDataLocalPath()
+    {
+        return Application.LocalUserAppDataPath + @"\..\..";
     }
 
     private static void Application_ThreadException(object sender, ThreadExceptionEventArgs e)
