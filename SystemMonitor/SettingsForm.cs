@@ -1,6 +1,7 @@
 ﻿using Networking;
 
 using System.Diagnostics;
+using System.Reflection;
 using System.Windows.Forms.DataVisualization.Charting;
 
 namespace SystemMonitor;
@@ -287,7 +288,7 @@ public partial class SettingsForm : Form
         value = new Label
         {
             Location = label.Location + new Size(label.Width, 0),
-            Text = "v0.2.4",
+            Text = $"v{Assembly.GetEntryAssembly()!.GetName().Version}",
             Width = label.Width * 2,
         };
         Controls.Add(value);
