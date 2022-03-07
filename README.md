@@ -6,6 +6,6 @@ Chart will be prepopulated with an estimaged and averaged ussage since last rest
 
 A checkbox is available on the settings screen and on the context menu to auto start with windows for the most accurage ussage history.
 
-<img src="https://achey.net/images/system_monitor_context_menu.png" width="50%" height="50%" />
+<img src="https://achey.net/images/system_monitor_context_menu.png" width="20%" height="20%" />
 
 <img src="https://achey.net/images/system_monitor.png" width="50%" height="50%" />
