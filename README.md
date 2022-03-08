@@ -4,7 +4,7 @@ When first launched will show a green dot in the task tray which can be right cl
 
 Chart will be prepopulated with an estimated and averaged usage since last restart / adapter reset.  History will become more accurate the longer the application is allowed to run and gather granular network ussage.
 
-A checkbox is available on the settings screen and on the context menu to auto start with windows for the most accurage ussage history.
+A checkbox is available on the settings screen and on the context menu to auto start with windows for the most accurage usage history.
 
 <img src="https://achey.net/images/system_monitor_context_menu.png" width="20%" height="20%" />
 
