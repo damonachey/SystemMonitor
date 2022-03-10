@@ -9,9 +9,9 @@ namespace SystemMonitor;
 
 internal class Settings
 {
-    public static string FileName { get; private set; } = default!;
+    public static string? FileName { get; private set; }
 
-    private static Settings instance = default!;
+    private static Settings? instance = default;
 
     public static Settings Default => instance
         ?? throw new NullReferenceException("Settings referenced before Load(...)");
@@ -37,6 +37,11 @@ internal class Settings
 
     public static void Save()
     {
+        if (FileName == null)
+        {
+            throw new ArgumentNullException(nameof(FileName));
+        }
+
         var config = JsonSerializer.Serialize(instance, GetOptions());
 
         var directory = Path.GetDirectoryName(FileName)

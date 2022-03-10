@@ -6,7 +6,7 @@ namespace Networking;
 [System.Diagnostics.DebuggerDisplay("{Time}: BytesReceived({BytesReceived}), BytesSent({BytesSent}), CumulativeBytesReceived({CumulativeBytesReceived}), CumulativeBytesSent({CumulativeBytesSent})")]
 public class Log
 {
-    public DateTime Time { get; set; }
+    public DateTime Time { get; init; }
     public long BytesReceived { get; set; }
     public long BytesSent { get; set; }
     public long CumulativeBytesReceived { get; set; }

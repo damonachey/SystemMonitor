@@ -8,7 +8,7 @@ namespace SystemMonitor;
 
 public partial class SettingsForm : Form
 {
-    private readonly INetworkMonitor networkMonitor = default!;
+    private readonly INetworkMonitor networkMonitor;
 
     public SettingsForm(INetworkMonitor networkMonitor)
     {
