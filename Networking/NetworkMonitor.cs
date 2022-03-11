@@ -18,7 +18,7 @@ public class NetworkMonitor : INetworkMonitor
 
     public async Task Start()
     {
-        if (previous != null)
+        if (previous is not null)
         {
             throw new NotSupportedException("Only one instance of NetworkMonitor can be run at a time");
         }
@@ -182,7 +182,7 @@ public class NetworkMonitor : INetworkMonitor
             current.CumulativeBytesSent += stats.BytesSent;
         }
 
-        if (previous == null) previous = current;
+        if (previous is null) previous = current;
 
         var log = new Log
         {

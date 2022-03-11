@@ -37,7 +37,7 @@ internal class Settings
 
     public static void Save()
     {
-        if (FileName == null)
+        if (FileName is null)
         {
             throw new ArgumentNullException(nameof(FileName));
         }

@@ -15,9 +15,9 @@ partial class DetailsForm
     {
         if (disposing) networkMonitor.OnUpdate -= UpdateNetworkData;
 
-        if (disposing && (components != null))
+        if (disposing)
         {
-            components.Dispose();
+            components?.Dispose();
         }
         base.Dispose(disposing);
     }

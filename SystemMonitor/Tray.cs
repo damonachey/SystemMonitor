@@ -113,7 +113,7 @@ public partial class Tray : Form
 
     private void UpdateIcon(double percentage)
     {
-        if (trayIcon.Icon != null)
+        if (trayIcon.Icon is not null)
         {
             trayIcon.Icon?.Dispose();
             DestroyIcon(trayIcon.Icon!.Handle);
@@ -137,7 +137,7 @@ public partial class Tray : Form
 
     private void OnSettings(object? sender, EventArgs e)
     {
-        if (settingsForm == null)
+        if (settingsForm is null)
         {
             settingsForm = new SettingsForm(networkMonitor);
 
@@ -186,10 +186,7 @@ public partial class Tray : Form
         }
         else
         {
-            if (key.GetValue(startWithWindowsName) != null)
-            {
-                key.DeleteValue(startWithWindowsName);
-            }
+            key.DeleteValue(startWithWindowsName, false);
         }
     }
 
