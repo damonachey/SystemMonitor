@@ -85,7 +85,7 @@ public partial class SettingsForm : Form
         value = new ComboBox
         {
             DropDownStyle = ComboBoxStyle.DropDownList,
-            Location = value.Location + new Size(value.Width , 0),
+            Location = value.Location + new Size(value.Width, 0),
             Width = 50,
         };
         var alertUnitComboBox = (ComboBox)value;
@@ -138,7 +138,7 @@ public partial class SettingsForm : Form
 
         value = new ComboBox
         {
-            DropDownStyle = ComboBoxStyle.DropDownList,   
+            DropDownStyle = ComboBoxStyle.DropDownList,
             Location = label.Location + new Size(label.Width, 0),
             Width = 80,
         };
