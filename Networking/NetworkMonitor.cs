@@ -61,9 +61,16 @@ public class NetworkMonitor : INetworkMonitor
     {
         if (File.Exists(LogFileName))
         {
-            Logs = File.ReadLines(LogFileName)
-                .Select(line => Log.Parse(line))
-                .ToList();
+            var lines = File.ReadLines(LogFileName);
+
+            foreach (var line in lines)
+            {
+                try
+                {
+                    Logs.Add(Log.Parse(line));
+                }
+                catch { } // if log file is corrupt or has bad data just ignore it.
+            }
         }
     }
 
